@@ -1,0 +1,108 @@
+@import './styles.scss';
+
+.new-edit-blog-modal-content {
+  padding: 1rem;
+  min-width: 320px;
+  max-width: 500px;
+  margin: 0 auto;
+  // background: pink;
+  // border-radius: 10px;
+}
+
+.new-edit-blog__title {
+  text-align: center;
+  color: $primary-color;
+  margin-bottom: 1.5rem;
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+.new-edit-blog__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.new-edit-blog__input {
+  // width: 100%;
+  padding: 0.7rem 1rem;
+  border: 1px solid $accent-color;
+  border-radius: 6px;
+  font-size: 1rem;
+  background: $light-grey;
+  color: $dark-grey;
+  resize: none;
+  transition: border-color 0.2s;
+
+  &:focus {
+    border-color: $primary-color;
+    outline: none;
+  }
+}
+
+.new-edit-blog__quill {
+  border: 1px solid $accent-color;
+  border-radius: 6px;
+  min-height: 300px;
+
+  .ql-container,
+  .ql-editor {
+    border: none;
+    min-height: 300px;
+    height: 300px;
+    font-size: 1rem;
+    background: $white;
+    border-radius: 0 0 6px 6px;
+
+    &:focus {
+      border-color: $primary-color;
+      outline: none;
+    }
+  }
+}
+
+.new-edit-blog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.new-edit-blog__save {
+  background: $primary-color;
+  color: $white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+
+  &:hover {
+    background: $primary-color-light;
+  }
+}
+
+.new-edit-blog__cancel {
+  background: $cancel-color;
+  color: $white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+
+  &:hover {
+    background: $cancel-color-light;
+  }
+}
+
+label {
+  font-size: 1rem;
+  color: $dark-grey;
+  margin-bottom: 0.2rem;
+  font-weight: 500;
+}

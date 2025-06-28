@@ -1,0 +1,13 @@
+@import "./styles.scss";
+
+.blogs-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  padding: 20px 0;
+  background-color: $light-grey;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr; // Single column for smaller screens
+  }
+}

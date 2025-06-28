@@ -1,0 +1,32 @@
+@import './styles.scss';
+
+.search {
+    display: flex;
+    align-items: center;
+    border: 2px solid $accent-color;
+    border-radius: 6px;
+    
+    .search-icon {
+      color: $dark-grey;
+      font-size: 1.2rem;
+      margin: 0 auto;
+      padding: .5rem;
+      background: $light-grey;
+      border-radius: 6px 0 0 6px;
+    }
+    
+    input {
+      all: unset;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      color: $dark-grey;
+      width: 100%;
+      transition: border-color 0.2s;
+      border-radius: 6px 0 0 6px;
+
+      &:focus {
+        border-color: $primary-color;
+        outline: none;
+      }
+    }
+  }

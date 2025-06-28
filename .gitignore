@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+*.log
+
+# Django specific
+db.sqlite3
+*.sqlite3
+*.pyc
+
+# Environments
+.env
+.env.*         # .env.local, .env.production, etc.
+venv/
+env/
+.venv/
+.idea/
+.vscode/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Migrations (optional, see notes below)
+**/migrations/__pycache__/
+**/migrations/*.pyc
+**/migrations/*.pyo
+# Uncomment below to ignore all migrations except __init__.py
+# **/migrations/*.py
+
+# Static & Media files (only if dynamically generated)
+staticfiles/
+media/
+
+# Compiled or cache files
+*.bak
+*.swp

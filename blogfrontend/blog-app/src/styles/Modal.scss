@@ -1,0 +1,83 @@
+@import './styles.scss';
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: $white;
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  padding: 2rem 1.5rem;
+  min-width: 320px;
+  max-width: 90vw;
+  max-height: 90vh;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  animation: modal-fade-in 0.2s ease;
+}
+
+@keyframes modal-fade-in {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.modal__close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.5rem;
+  border-radius: 50%;
+  font-size: 1rem;
+  color: $cancel-color;
+  background: none;
+  cursor: pointer;
+  transition: color 0.2s;
+  font-weight: bold;
+
+
+  &:hover {
+    color: $cancel-color;
+    background: $accent-color-light;
+  }
+}
+
+.modal__title {
+  margin: 0 0 1rem 0;
+  font-size: 1.5rem;
+  color: $primary-color;
+  font-weight: bold;
+  text-align: center;
+}
+
+.modal__content {
+  flex: 1;
+  margin-bottom: 1rem;
+  color: $dark-grey;
+  font-size: 1rem;
+  overflow-y: auto;
+}
+
+.modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.children-parent-container{
+  position: relative;
+  background: white;
+  padding: 1rem;
+  border-radius: 10px;
+}
