@@ -13,7 +13,7 @@ function BlogItem({ blog }) {
 
   return (
     <div className="blog-item">
-      <img src="https://archive.org/download/placeholder-image/placeholder-image.jpg" alt={title} className="blog-item__image" />
+      <img src="/assets/logos/BlueOnTransparent.png" alt={title} className="blog-item__image" />
       <div className="blog-item__content">
         <Link className="blog-item__title" to={`/post/${id}`}>
           <h3>{title}</h3>

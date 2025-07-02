@@ -1,0 +1,47 @@
+@import './styles.scss';
+
+.header {
+  // display: flex;
+  // align-items: center;
+  // justify-content: space-between;
+  // padding: 1.2rem 2rem 1.2rem 1.2rem;
+  // background: $white;
+  // border-radius: 1.2rem 1.2rem 0 0;
+  // box-shadow: 0 2px 12px rgba($primary-color, 0.07);
+  // margin-bottom: 1.5rem;
+  // position: relative;
+  // z-index: 2;
+
+  .logo {
+    height: 38px;
+    width: auto;
+    cursor: pointer;
+    transition: transform 0.18s;
+    &:hover {
+      transform: scale(1.07) rotate(-2deg);
+    }
+  }
+
+  .profile-icon{
+    font-size: 2rem;
+    color: $primary-color-light;
+    cursor: pointer;
+    // padding: 5px;
+    // background: lighten($color: $dark-grey-light, $amount: 55);
+    border-radius: 50%;
+    transition: all ease-in-out 0.2s;
+    transform: scale(1.1);
+    
+    &:hover {
+      color: $primary-color;
+      background: $accent-color-light;
+      transform: scale(1.2);
+    }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+  }
+}

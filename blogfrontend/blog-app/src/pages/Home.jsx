@@ -1,37 +1,22 @@
-import React, { useEffect, useState } from "react";
-// import useFetchBlogs from "../hooks/useFetchBlogs";
+//styles
 import "../styles/Home.scss";
-import { useNavigate } from "react-router-dom";
+
+//components
 import BlogsContainer from "../components/BlogsContainer";
-import { getBlogs } from "../services/apiBlogs";
-import { useGetBlogs } from "../hooks/useGetBlogs";
 import Loader from "../components/Loader";
-import { useAuth } from "../contexts/AuthContext";
 import Search from "../components/Search";
-import Footer from "../components/Footer";
+import Header from "../components/Header";
+
+//hooks
+import { useGetBlogs } from "../hooks/useGetBlogs";
 
 const Home = () => {
   const { blogsData = [], isLoadingBlogs } = useGetBlogs();
-  const navigate = useNavigate();
-  const { isAuthorized } = useAuth();
 
   return (
     <div>
       {/* Header Section */}
-      <header className="header">
-        <span onClick={() => navigate("/")}>
-          <img src="/assets/logos/BlueOnTransparent.png" className="logo" alt="Blogrr Logo" />
-        </span>
-        {isAuthorized ? (
-          <button className="loginButton" onClick={() => navigate("dashboard/")}>
-            Dashboard
-          </button>
-        ) : (
-          <button className="loginButton" onClick={() => navigate("login/")}>
-            Login
-          </button>
-        )}
-      </header>
+      <Header />
 
       {/* Blog List Section */}
       {isLoadingBlogs ? (
@@ -41,7 +26,7 @@ const Home = () => {
           {blogsData.length > 0 && (
             <div>
               <h2 className="blog-subheader">Blog Posts</h2>
-              <Search/>
+              <Search placeholder="Search blog, tags or author..."/>
             </div>
           )}
           {blogsData.length > 0 ? (

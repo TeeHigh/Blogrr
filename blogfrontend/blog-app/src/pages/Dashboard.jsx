@@ -11,20 +11,22 @@ import { useDeleteBlog } from "../hooks/useDeleteBlog";
 import DashboardBlogItem from "../components/DashboardBlogItem";
 import Loader from "../components/Loader";
 import Modal from "../components/Modal";
-import NewEditBlog from "../components/NewEditBlog";
+import NewEditBlog from "../components/NewEditBlogForm";
 import ConfirmationModal from "../components/ConfirmationModal";
 
 import "../styles/Dashboard.scss";
 import DashboardActions from "../components/DashboardActions";
+import DashbaordStats from "../components/DashbaordStats";
+import Header from "../components/Header";
 
 const Dashboard = () => {
   const { setIsAuthorized } = useAuth();
   const [loggedOut, setLoggedOut] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+
   const { deleteBlog, isDeletingBlog } = useDeleteBlog();
   const { dashboardData = {}, isLoadingDashboardData } = useDashboardData();
-  
+
   const AUTO_LOGOUT_TIME = 15 * 60 * 1000; // 15 minutes
 
   const navigate = useNavigate();
@@ -64,37 +66,35 @@ const Dashboard = () => {
     <>
       <Modal>
         <div>
-          <header className="dashboard-header">
-            <span onClick={() => navigate("/")}>
-              <img src="/assets/logos/BlueOnTransparent.png" className="logo" alt="Blogrr Logo" />
-            </span>
-            <div className="dashboard-header__actions">
-              <Modal.Open opens="newBlogModal">
-                <button className="add-blog-button" onClick={handleCreateBlog}>
-                  Add New Blog <HiPlus />
-                </button>
-              </Modal.Open>
-
-              <Modal.Open>
-                <button className="logout-button">
-                  Logout <HiOutlineLogout />
-                </button>
-              </Modal.Open>
-            </div>
-          </header>
+          <Header />
           <hr />
           <span className="welcome-message-and-button">
-            <NavLink to="/" className="back-to-home">
-              ⇐
-            </NavLink>
-            <h2 className="dashboard-header">Dashboard</h2>
-            <h2 className="welcome-text">
-              👋 Welcome, {dashboardData?.author?.username}!
-            </h2>
+            <div
+              style={{ display: "flex", alignItems: "center", gap: ".5rem" }}
+            >
+              <NavLink to="/" className="back-to-home">
+                ⇐
+              </NavLink>
+              <h2 className="dashboard-header">Dashboard</h2>
+            </div>
+
+            <div
+              style={{ display: "flex", alignItems: "center", gap: ".5rem" }}
+            >
+              <h2 className="welcome-text">
+                👋 Welcome, {dashboardData?.author?.username}!
+              </h2>
+            </div>
           </span>
 
-          <DashboardActions />
+          <DashbaordStats />
 
+          <DashboardActions />
+          <Modal.Open opens="newBlogModal">
+            <button className="add-blog-button" onClick={handleCreateBlog}>
+              <HiPlus /> Add New Blog
+            </button>
+          </Modal.Open>
           {/* <p>Manage your blog posts here.</p> */}
           <div className="dashboard-blogs">
             {blogsData.length > 0 ? (

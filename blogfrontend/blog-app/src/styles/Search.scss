@@ -5,19 +5,35 @@
     align-items: center;
     border: 2px solid $accent-color;
     border-radius: 6px;
+    margin: .8rem 0;
+
+    .search-icon-container{
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      background: $accent-color-light;
+      border-radius: 6px 0 0 6px;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: darken($accent-color-light, 5%);
+      }
+    }
     
     .search-icon {
       color: $dark-grey;
-      font-size: 1.2rem;
-      margin: 0 auto;
-      padding: .5rem;
-      background: $light-grey;
-      border-radius: 6px 0 0 6px;
+      font-size: .8rem;
+      // padding: .5rem;
+    }
+
+    .search-icon-container, input{
+      padding: 0.5rem 1rem;
     }
     
     input {
       all: unset;
-      padding: 0.5rem 1rem;
+      padding: 0 .5rem;
       font-size: 1rem;
       color: $dark-grey;
       width: 100%;

@@ -12,6 +12,7 @@ api.interceptors.request.use(
       "/token/",
       "/token/refresh/",
       "/blogs/",
+      "/check-username/",
     ];
 
     // Remove baseURL if present to match the endpoint

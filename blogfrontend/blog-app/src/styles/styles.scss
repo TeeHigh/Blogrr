@@ -20,6 +20,12 @@ $light-grey: #f8f8f8; // Light Grey
 $white: #ffffff; // White
 $font-stack: "Arial", sans-serif;
 
+*{
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 body {
   font-family: $font-stack;
   margin: 0;
@@ -32,6 +38,7 @@ body {
   max-width: 1200px;
   margin: auto;
   padding: 20px;
+  height: 100vh;
 }
 
 h1 {

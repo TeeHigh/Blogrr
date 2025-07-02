@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from rest_framework import generics, status
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 from .models import Blog
@@ -60,3 +61,12 @@ class BlogDetailView(generics.RetrieveUpdateDestroyAPIView):
         if instance.author != request.user:
             return Response({"detail": "You do not have permission to delete this blog."}, status=status.HTTP_403_FORBIDDEN)
         return super().destroy(request, *args, **kwargs)
+
+
+@api_view(["GET"])
+def check_username(request):
+    username = request.GET.get("username")
+    if username:
+        exists = User.objects.filter(username__iexact=username).exists()
+        return Response({"exists": exists})
+    return Response({"error": "Username not provided"}, status=400)

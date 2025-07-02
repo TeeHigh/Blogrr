@@ -3,7 +3,13 @@ import "../styles/AuthForm.scss";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../api";
 import { useAuth } from "../contexts/AuthContext";
-import { HiEye, HiEyeSlash, HiXCircle } from "react-icons/hi2";
+import {
+  HiEye,
+  HiEyeSlash,
+  HiOutlineXCircle,
+  HiXCircle,
+  HiOutlineCheckCircle
+} from "react-icons/hi2";
 import { toast } from "react-toastify";
 
 const AuthForm = ({ route, mode }) => {
@@ -15,6 +21,18 @@ const AuthForm = ({ route, mode }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [usernameStatus, setUsernameStatus] = useState(null);
+
+  const checkUsernameAvailability = async (username) => {
+    try {
+      const res = await api.get(`/api/check-username/`, {
+        params: { username },
+      });
+      setUsernameStatus(res.data.exists ? "taken" : "available");
+    } catch (error) {
+      console.error("Username check failed:", error);
+    }
+  };
 
   const { setIsAuthorized } = useAuth();
   const navigate = useNavigate();
@@ -40,7 +58,7 @@ const AuthForm = ({ route, mode }) => {
         localStorage.setItem("access_token", response.data.access);
         localStorage.setItem("refresh_token", response.data.refresh);
         setIsAuthorized(true);
-        toast.success("Login successful!")
+        toast.success("Login successful!");
         navigate("/dashboard");
       } else {
         toast.success("Registration successful! Please login.");
@@ -65,50 +83,88 @@ const AuthForm = ({ route, mode }) => {
   return (
     <div className="auth-container">
       <form onSubmit={handleSubmit} className="auth-form">
-        <span className="close-form" onClick={() => navigate("/")}>
-          <HiXCircle />
-        </span>
-        <h1>{mode === "login" ? "Login" : "Register"}</h1>
-        <input
-          type="text"
-          name="username"
-          placeholder="Username"
-          value={formData.username}
-          onChange={handleChange}
-          className="auth-input"
-          required
-        />
-        {mode === "register" && (
+        <div className="form-title">
+          <h1>{mode === "login" ? "Login" : "Sign Up"}</h1>
+          <span className="close-form" onClick={() => navigate("/")}>
+            <HiXCircle />
+          </span>
+        </div>
+        <div className="inputs">
           <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={formData.email}
+            type="text"
+            name="username"
+            placeholder="Username"
+            value={formData.username}
+            onChange={(e) => {
+              handleChange(e);
+              setUsernameStatus(null); // reset while typing
+            }}
+            onBlur={() =>
+              mode === "register" &&
+              checkUsernameAvailability(formData.username)
+            }
+            className={`auth-input ${
+              usernameStatus === "taken" ? "input-error" : ""
+            }`}
+            autoComplete="off"
+            required
+          />
+          {mode === "register" && usernameStatus === "taken" && (
+            <p className="username-error">
+              {" "}
+              <HiOutlineXCircle />
+              Username is already taken
+            </p>
+          )}
+          {mode === "register" && usernameStatus === "available" && (
+            <p className="username-available">
+              <HiOutlineCheckCircle /> Username is available
+            </p>
+          )}
+          {mode === "register" && (
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={formData.email}
+              onChange={handleChange}
+              className="auth-input"
+              required
+            />
+          )}
+          <input
+            type={showPassword ? "text" : "password"}
+            name="password"
+            placeholder="Password"
+            value={formData.password}
             onChange={handleChange}
             className="auth-input"
             required
-            />
-          )}
-        <input
-          type={showPassword ? "text" : "password"}
-          name="password"
-          placeholder="Password"
-          value={formData.password}
-          onChange={handleChange}
-          className="auth-input"
-          required
           />
-        <span
-          className="toggle-password-visibility"
-          style={{ cursor: "pointer", marginLeft: "-30px", userSelect: "none" }}
-          onClick={() => setShowPassword((prev) => !prev)}
-          title={showPassword ? "Hide password" : "Show password"}
+          <span
+            className="toggle-password-visibility"
+            style={{
+              cursor: "pointer",
+              marginLeft: "-30px",
+              userSelect: "none",
+            }}
+            onClick={() => setShowPassword((prev) => !prev)}
+            title={showPassword ? "Hide password" : "Show password"}
           >
-          {showPassword ? <HiEyeSlash /> : <HiEye />}
-        </span>
-          {errorMsg && <div className="auth-error">{errorMsg}</div>}
-        <button type="submit" className="auth-button" disabled={isLoading}>
-          {isLoading ? "Loading..." : mode === "login" ? "Login" : "Register"}
+            {showPassword ? <HiEyeSlash /> : <HiEye />}
+          </span>
+        </div>
+        {errorMsg && <div className="auth-error">{errorMsg}</div>}
+        <button
+          type="submit"
+          className="auth-button"
+          disabled={
+            isLoading ||
+            (mode === "register" &&
+              (usernameStatus === "taken" || usernameStatus === null))
+          }
+        >
+          {isLoading ? "Loading..." : mode === "login" ? "Login" : "Sign Up"}
         </button>
         <p className="toggle-text">
           {mode === "login" ? (

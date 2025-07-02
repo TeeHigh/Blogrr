@@ -1,6 +1,6 @@
 import Modal from "./Modal";
 import "../styles/DashboardBlogItem.scss";
-import NewEditBlog from "./NewEditBlog";
+import NewEditBlog from "./NewEditBlogForm";
 import ConfirmationModal from "./ConfirmationModal";
 import { HiPencil, HiTrash } from "react-icons/hi2";
 
