@@ -2,35 +2,38 @@
 
 .profile-menu {
   position: absolute;
-  top: 0; /* Adjust based on your header height */
-  right: 20px; /* Adjust based on your layout */
+  top: 2.1rem; /* Adjust based on your header height */
+  right: 0; /* Adjust based on your layout */
   background: $white;
-  border: 1px solid $primary-color;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  // border: 1px solid $primary-color;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   z-index: 1000;
-  
-  &__header {
-    padding: 1rem;
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: $primary-color;
-    border-bottom: 1px solid $light-grey;
-    text-align: center;
-  }
+  padding: 5px;
 
-  &__item {
+  // justify-content: stretch;
+
+  .profile-menu-item {
     padding: 0.8rem 1.2rem;
     cursor: pointer;
     transition: background-color 0.2s;
+    background: $white;
+    // border-radius: 8px 8px 0 0;
+    color: $dark-grey;
+    font-size: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+    align-items: center;
+    justify-content: flex-start;
+  
+    &:not(:last-child) {
+      // border-bottom: 1px solid $dark-grey;
+    }
 
     &:hover {
       background-color: $light-grey;
     }
     
-    &--logout {
-      color: $cancel-color;
-      font-weight: bold;
-    }
   }
 }

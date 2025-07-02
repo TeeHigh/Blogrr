@@ -14,7 +14,7 @@ import "../styles/Header.scss";
 import ProfileMenu from "./ProfileMenu";
 import { useState } from "react";
 
-function Header() {
+function Header({logout}) {
   const navigate = useNavigate();
   const { isAuthorized } = useAuth();
 
@@ -36,7 +36,7 @@ function Header() {
       {isAuthorized ? (
         <div className="header-profile">
           <HiOutlineUserCircle className="profile-icon" onClick={toggleProfileMenu} />
-          <ProfileMenu showProfileMenu={showProfileMenu} />
+          <ProfileMenu showProfileMenu={showProfileMenu} logout={logout} />
         </div>
       ) : (
         <button className="loginButton" onClick={() => navigate("login/")}>

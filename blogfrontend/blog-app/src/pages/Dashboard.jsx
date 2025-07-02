@@ -66,7 +66,7 @@ const Dashboard = () => {
     <>
       <Modal>
         <div>
-          <Header />
+          <Header logout={handleLogout} />
           <hr />
           <span className="welcome-message-and-button">
             <div

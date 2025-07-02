@@ -63,9 +63,10 @@ function App() {
           {/* Footer Section */}
           {/* <Footer /> */}
           <ToastContainer
-            position="top-right"
+            position="top-center"
             pauseOnHover={false}
             pauseOnFocusLoss={false}
+            // hideProgressBar
           />
         </Router>
       </AuthProvider>

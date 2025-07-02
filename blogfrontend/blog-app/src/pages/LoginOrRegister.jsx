@@ -1,19 +1,23 @@
+import { useNavigate } from "react-router-dom";
 import AuthForm from "../components/AuthForm";
 
 const LoginOrRegister = ({ mode, route }) => {
+  const navigate = useNavigate();
+
   return (
     <div
       style={{ display: "flex", height: "100vh" }}
       className="login-container"
     >
       <div className="login-left-side">
-        <a href="/">
+        
           <img
             src="/assets/logos/BlueOnTransparent.png"
             alt="Logo"
             className="login-logo"
+            onClick={() => navigate("/")}
           />
-        </a>
+        
         <AuthForm mode={mode} route={route} />
       </div>
       <div className="login-right-side">
@@ -28,7 +32,7 @@ const LoginOrRegister = ({ mode, route }) => {
               </p>
               <p className="login-description">
                 Enjoy a <span className="highlighted">seamless writing</span>{" "}
-                and <span className="highlighted">reading</span> experience with
+                and <span className="highlighted">reading experience</span> with
                 our modern platform.
               </p>
             </>

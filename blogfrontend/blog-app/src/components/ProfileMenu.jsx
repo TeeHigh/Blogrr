@@ -2,25 +2,25 @@ import '../styles/ProfileMenu.scss';
 
 import { HiOutlineLogout } from "react-icons/hi";
 import { HiOutlineHomeModern } from "react-icons/hi2";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
-function ProfileMenu({showProfileMenu}) {
+function ProfileMenu({showProfileMenu, logout}) {
   const navigate = useNavigate();
 
   const menuTiles = [
     {
       title: "Dashboard",
       icon: <HiOutlineHomeModern />,
-      callbackFn: navigate("dashboard/"),
+      callbackFn: () => navigate("/dashboard"),
     },
     {
       title: "Logout",
       icon: <HiOutlineLogout />,
-      callbackFn: console.log('logout'),
+      callbackFn: () => logout(),
     },
   ];
   return (
-    <div className="profile-menu">
+    <div className="profile-menu" style={!showProfileMenu ? {visibility: 'none'} : {}}>
       {showProfileMenu && menuTiles.map((tile, index) => (
         <button 
           key={index}
@@ -28,8 +28,8 @@ function ProfileMenu({showProfileMenu}) {
           className="profile-menu-item"
         
         >
-          {tile.icon}
-          {tile.title} 
+          <p>{tile.icon}</p>
+          <p>{tile.title}</p>
         </button>
       ))}
 

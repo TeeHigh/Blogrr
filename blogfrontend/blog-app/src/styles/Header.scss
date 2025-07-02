@@ -17,9 +17,11 @@
     width: auto;
     cursor: pointer;
     transition: transform 0.18s;
-    &:hover {
-      transform: scale(1.07) rotate(-2deg);
-    }
+
+  }
+
+  .header-profile{
+    position: relative;
   }
 
   .profile-icon{
@@ -30,12 +32,12 @@
     // background: lighten($color: $dark-grey-light, $amount: 55);
     border-radius: 50%;
     transition: all ease-in-out 0.2s;
-    transform: scale(1.1);
+    // transform: scale(1.1);
     
     &:hover {
       color: $primary-color;
       background: $accent-color-light;
-      transform: scale(1.2);
+      // transform: scale(1.2);
     }
   }
 
