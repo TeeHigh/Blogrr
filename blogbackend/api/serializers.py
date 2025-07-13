@@ -27,10 +27,12 @@ class UserSerializer(serializers.ModelSerializer):
 
 class BlogSerializer(serializers.ModelSerializer):
     author = serializers.SerializerMethodField()
+    image = serializers.ImageField(required=False, allow_null=True)
 
     class Meta:
         model = Blog
-        fields = ['id', 'title', 'summary', 'content', 'created_at', 'updated_at', 'author']
+        # fields = ['id', 'title', 'summary', 'content', 'created_at', 'updated_at', 'author']
+        fields = '__all__'
 
     def get_author(self, obj):
         return obj.author.get_full_name() or obj.author.username

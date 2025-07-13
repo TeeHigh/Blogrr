@@ -3,7 +3,7 @@ import "../styles/BlogItem.scss";
 import { Link } from "react-router-dom";
 
 function BlogItem({ blog }) {
-  const { id, image, created_at, title, author } = blog;
+  const { id, image, created_at, summary, title, author } = blog;
 
   const formattedDate = new Intl.DateTimeFormat("en-US", {
     month: "short",
@@ -18,6 +18,7 @@ function BlogItem({ blog }) {
         <Link className="blog-item__title" to={`/post/${id}`}>
           <h3>{title}</h3>
         </Link>
+        <p className="blog-item__summary">{summary}</p>
         <p className="blog-item__meta">
           <span className="blog-item__author">By {author}</span> |{" "}
           <span className="blog-item__date">{formattedDate}</span>

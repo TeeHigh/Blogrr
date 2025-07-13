@@ -38,13 +38,13 @@ api.interceptors.response.use(
       error.response &&
       error.response.status === 401 &&
       !originalRequest._retry &&
-      !originalRequest.url.includes("/token/refresh/")
+      !originalRequest.url.includes("/api/token/refresh/")
     ) {
       originalRequest._retry = true;
       try {
         const refreshToken = localStorage.getItem("refresh_token");
         if (refreshToken) {
-          const res = await api.post("/token/refresh/", { refresh: refreshToken });
+          const res = await api.post("/api/token/refresh/", { refresh: refreshToken });
           localStorage.setItem("access_token", res.data.access);
           // Update the Authorization header and retry the original request
           originalRequest.headers["Authorization"] = `Bearer ${res.data.access}`;

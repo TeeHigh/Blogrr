@@ -1,16 +1,26 @@
 @import './styles.scss';
 
 .header {
-  // display: flex;
+  // position: sticky;
+  // top: 0;
   // align-items: center;
-  // justify-content: space-between;
-  // padding: 1.2rem 2rem 1.2rem 1.2rem;
-  // background: $white;
-  // border-radius: 1.2rem 1.2rem 0 0;
-  // box-shadow: 0 2px 12px rgba($primary-color, 0.07);
-  // margin-bottom: 1.5rem;
-  // position: relative;
-  // z-index: 2;
+  // z-index: 1000;
+  // box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 10px;
+  z-index: 1000;
+  display: flex; // ensure layout is set
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+
+  // Glassmorphism core styles
+  background: rgba(150, 150, 150, 0.15); // translucent white
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px); // Safari support
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3); // subtle bottom border
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); // soft shadow
 
   .logo {
     height: 38px;
@@ -18,6 +28,15 @@
     cursor: pointer;
     transition: transform 0.18s;
 
+  }
+
+  .header-buttons {
+    display: flex;
+    gap: .7rem;
+
+    button{
+      text-transform: capitalize;
+    }
   }
 
   .header-profile{

@@ -93,6 +93,11 @@
   &:hover {
     background-color: $primary-color;
   }
+
+  &:disabled {
+    background-color: rgba($primary-color, 0.07);
+    cursor: not-allowed;
+  }
 }
 
 .toggle-text {

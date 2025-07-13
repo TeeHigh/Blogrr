@@ -1,21 +1,25 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import api from "../api";
+import { toast } from "react-toastify";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [isAuthorized, setIsAuthorized] = useState(null);
+  const [loggedOut, setLoggedOut] = useState(false);
 
   useEffect(() => {
+    setIsAuthorized(null);
     auth().catch(() => setIsAuthorized(false));
-    // eslint-disable-next-line
-  }, []);
+  }, [loggedOut]);
 
   const refreshToken = async () => {
     const refreshToken = localStorage.getItem("refresh_token");
     try {
-      const response = await api.post("/api/token/refresh/", { refresh: refreshToken });
+      const response = await api.post("/api/token/refresh/", {
+        refresh: refreshToken,
+      });
       if (response.status === 200) {
         localStorage.setItem("access_token", response.data.access);
         setIsAuthorized(true);
@@ -42,8 +46,24 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.clear();
+    setIsAuthorized(false);
+    setLoggedOut(true);
+    toast.success("Logged out successfully!");
+    window.location.href = "/login";
+  };
+
   return (
-    <AuthContext.Provider value={{ isAuthorized, setIsAuthorized }}>
+    <AuthContext.Provider
+      value={{
+        isAuthorized,
+        setIsAuthorized,
+        loggedOut,
+        setLoggedOut,
+        handleLogout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

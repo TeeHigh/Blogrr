@@ -49,7 +49,7 @@ const AuthForm = ({ route, mode }) => {
 
     try {
       const response = await api.post(route, {
-        username: formData.username,
+        username: formData.username.toLowerCase(),
         password: formData.password,
         ...(mode === "register" && { email: formData.email }),
       });
@@ -107,6 +107,7 @@ const AuthForm = ({ route, mode }) => {
               usernameStatus === "taken" ? "input-error" : ""
             }`}
             autoComplete="off"
+            autoFocus
             required
           />
           {mode === "register" && usernameStatus === "taken" && (

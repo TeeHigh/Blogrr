@@ -59,7 +59,7 @@ button {
   gap: 5px;
 
   &:hover {
-    background-color: darken($secondary-color, 10%);
+    // background-color: darken($light-grey, 10%);
   }
 
   &:disabled{
