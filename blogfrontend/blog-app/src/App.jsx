@@ -35,7 +35,15 @@ function App() {
               }
             />
             <Route
-              path="/edit/:id"
+              path="/dashboard/edit-blog/:id"
+              element={
+                <ProtectedRoute>
+                  <BlogFormPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard/create-blog"
               element={
                 <ProtectedRoute>
                   <BlogFormPage />

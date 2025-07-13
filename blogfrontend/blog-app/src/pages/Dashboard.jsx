@@ -20,8 +20,8 @@ import DashbaordStats from "../components/DashbaordStats";
 import Header from "../components/Header";
 
 const Dashboard = () => {
-  const { setIsAuthorized } = useAuth();
-  const [loggedOut, setLoggedOut] = useState(false);
+  const { handleLogout, loggedOut,  } = useAuth();
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { deleteBlog, isDeletingBlog } = useDeleteBlog();
@@ -44,11 +44,7 @@ const Dashboard = () => {
     deleteBlog(id);
   };
 
-  const handleLogout = () => {
-    localStorage.clear();
-    setIsAuthorized(false);
-    setLoggedOut(true);
-  };
+  
 
   useIdleLogout({ logoutCallback: handleLogout, timeout: AUTO_LOGOUT_TIME });
 

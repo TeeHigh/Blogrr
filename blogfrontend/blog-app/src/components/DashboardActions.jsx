@@ -2,9 +2,9 @@ import { useState } from "react";
 import Search from "./Search";
 
 function DashboardActions() {
-  const [activeTab, setActiveTab] = useState("My Blogs");
+  const [activeTab, setActiveTab] = useState("Active Blogs");
 
-  const tabs = ["My Blogs", "Archived Blogs", "Drafts"];
+  const tabs = ["Active Blogs", "Archived Blogs", "Drafts"];
 
   return (
     <div className="dashboard-actions">

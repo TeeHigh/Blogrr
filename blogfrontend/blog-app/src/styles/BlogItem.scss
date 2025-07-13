@@ -35,10 +35,16 @@
     text-decoration: none;
     text-transform: capitalize;
   }
+  &__summary {
+    padding: 10px 0;
+    margin: .6rem 0;
+    color: $dark-grey;
+  }
 
   &__meta {
     font-size: 0.9rem;
     color: $dark-grey;
+    margin-top: auto;
   }
 
   &__author {

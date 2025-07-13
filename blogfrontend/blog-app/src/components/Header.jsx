@@ -2,7 +2,7 @@
 import Modal from "./Modal";
 
 //icons
-import { HiOutlineLogout } from "react-icons/hi";
+import { Button } from '@mui/material';
 import { HiOutlineUserCircle } from "react-icons/hi2";
 
 //hooks
@@ -36,12 +36,19 @@ function Header({logout}) {
       {isAuthorized ? (
         <div className="header-profile">
           <HiOutlineUserCircle className="profile-icon" onClick={toggleProfileMenu} />
-          <ProfileMenu showProfileMenu={showProfileMenu} logout={logout} />
+          <ProfileMenu showProfileMenu={showProfileMenu} setShowProfileMenu={setShowProfileMenu} logout={logout} />
         </div>
       ) : (
-        <button className="loginButton" onClick={() => navigate("login/")}>
-          Login
-        </button>
+        <div className="header-buttons">
+          <Button onClick={() => navigate("/login")} >
+            Sign In
+          </Button>
+          <Button onClick={() => navigate("/register")} variant="contained" sx={{ bgcolor: 'info.dark'}}>
+            Sign Up
+          </Button>
+
+
+        </div>
       )}
     </header>
   );
