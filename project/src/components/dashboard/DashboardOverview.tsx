@@ -8,7 +8,7 @@ export default function DashboardOverview() {
   const { posts } = useBlog();
   const { user } = useAuth();
   
-  const userPosts = posts.filter(post => post.author === user?.name);
+  const userPosts = posts.filter(post => post.author === user?.fullname);
   const publishedPosts = userPosts.filter(post => post.status === 'published');
   const draftPosts = userPosts.filter(post => post.status === 'draft');
 
@@ -43,7 +43,7 @@ export default function DashboardOverview() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Welcome back, {user?.name}</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Welcome back, {user?.username}</h1>
           <p className="text-gray-600">Here's what's happening with your blog</p>
         </div>
         <div className="flex items-center gap-3">

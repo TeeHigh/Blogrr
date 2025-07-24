@@ -18,6 +18,9 @@ export default {
         
         cancel: '#e63946',
         'cancel-light': '#f07a82', // lighten(#e63946, 20%)
+        
+        success: '#22c55e',
+        'success-light': '#4ade80', // lighten(#22c55e, 20%)
 
         text: '#333333',
         'light-grey': '#f8f8f8',

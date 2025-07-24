@@ -1,18 +1,20 @@
 import React, { useState } from "react";
 import { Navigate, useLocation, Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
+import useLogin from "../hooks/useLogin";
 import { useAuth } from "../contexts/AuthContext";
+import { AxiosError } from "axios";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  const { user, login } = useAuth();
+
   const location = useLocation();
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const { login, isPending, isError, error } = useLogin();
 
   const from = location.state?.from?.pathname || "/dashboard";
 
@@ -20,25 +22,21 @@ export default function Login() {
     return <Navigate to={from} replace />;
   }
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setLoading(true);
-
     try {
-      const success = await login(email, password);
-      if (!success) {
-        setError("Invalid email or password");
-      }
-    } catch (err) {
-      setError("An error occurred. Please try again.");
-    } finally {
-      setLoading(false);
+      await login(formData);
+    } catch (err: AxiosError | any) {
+      console.error(err.message);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-between">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-between auth-page-background">
       <div className="max-w-md w-full p-6 mx-auto">
 
         <div className="text-center mb-8">
@@ -74,8 +72,9 @@ export default function Login() {
                 <input
                   id="email"
                   type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={formData.email}
+                  onChange={handleChange}
+                  name="email"
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary-light focus:border-transparent outline-none"
                   placeholder="Enter your email"
                   required
@@ -95,8 +94,9 @@ export default function Login() {
                 <input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={formData.password}
+                  name="password"
+                  onChange={handleChange}
                   className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary-light focus:border-transparent outline-none"
                   placeholder="Enter your password"
                   required
@@ -116,18 +116,18 @@ export default function Login() {
             <button type="button" className="hover:underline text-primary-light hover:text-primary text-[0.75rem]">Forgot password?</button>
             </div>
 
-            {error && (
+            {isError && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                <p className="text-red-600 text-sm">{error}</p>
+                <p className="text-red-600 text-sm">{"Login failed"}</p>
               </div>
             )}
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={isPending}
               className="w-full bg-secondary text-white py-3 px-4 rounded-lg font-semibold hover:bg-secondary-light focus:ring-2 focus:bg-secondary focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? "Signing in..." : "Sign in"}
+              {isPending ? "Signing in..." : "Sign in"}
             </button>
           </form>
 

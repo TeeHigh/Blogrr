@@ -1,145 +1,113 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  avatar?: string;
-  role: 'author' | 'admin';
-  genres?: string[];
-  bio?: string;
-  emailVerified: boolean;
-}
+// src/contexts/AuthContext.tsx
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  Dispatch,
+  SetStateAction,
+  useRef,
+  MutableRefObject,
+} from "react";
+import { User } from "../types/types";
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<boolean>;
-  register: (email: string, password: string, name: string) => Promise<{ success: boolean; message: string }>;
-  verifyEmail: (code: string) => Promise<boolean>;
-  updateProfile: (updates: Partial<User>) => Promise<boolean>;
+  isAuthenticated: boolean;
+  onboardingComplete: boolean;
+  emailToVerify: string;
+  emailAvailable: boolean;
+  emailVerified: boolean;
+  setUser: Dispatch<SetStateAction<User | null>>;
+  setIsAuthenticated: (auth: boolean) => void;
+  setOnboardingComplete: (status: boolean) => void;
+  setEmailToVerify: (email: string) => void;
+  setEmailAvailable: (status: boolean) => void;
+  setEmailVerified: (status: boolean) => void;
   logout: () => void;
-  loading: boolean;
-  pendingVerification: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-}
-
-export default function AuthProvider({ children }: { children: React.ReactNode }) {
+const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [pendingVerification, setPendingVerification] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [onboardingComplete, setOnboardingComplete] = useState(false);
+  const [emailAvailable, setEmailAvailable] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
+  // const [emailToVerify, setEmailToVerify] = useState<string>("");
+
+  const emailToVerify = useRef<string>("");
+
+  const setEmailToVerify = (email: string) => {
+    emailToVerify.current = email;
+  };
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    const savedPending = localStorage.getItem('pendingVerification');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-    if (savedPending) {
-      setPendingVerification(savedPending);
-    }
-    setLoading(false);
-  }, []);
-
-  const login = async (email: string, password: string): Promise<boolean> => {
-    // Simulate API call
-    if (email === 'demo@blog.com' && password === 'password') {
-      const mockUser: User = {
-        id: '1',
-        name: 'Demo Author',
-        email: 'demo@blog.com',
-        avatar: 'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=150',
-        role: 'author',
-        emailVerified: true,
-        genres: ['Technology', 'Web Development'],
-        bio: 'Passionate about creating amazing web experiences'
-      };
-      setUser(mockUser);
-      localStorage.setItem('user', JSON.stringify(mockUser));
-      setPendingVerification(null);
-      localStorage.removeItem('pendingVerification');
-      return true;
-    }
-    return false;
-  };
-
-  const register = async (email: string, password: string, name: string): Promise<{ success: boolean; message: string }> => {
-    // Simulate API call
     try {
-      // Check if user already exists
-      if (email === 'demo@blog.com') {
-        return { success: false, message: 'User with this email already exists' };
+      const storedUser = localStorage.getItem("user");
+      const token = localStorage.getItem("token");
+
+      if (storedUser && token) {
+        const parsedUser = JSON.parse(storedUser);
+
+        setUser(parsedUser);
+        setIsAuthenticated(true);
+        setEmailVerified(!!parsedUser.emailVerified);
+        setOnboardingComplete(!!parsedUser.name && !!parsedUser.emailVerified);
+      } else {
+        setUser(null);
+        setIsAuthenticated(false);
+        setEmailVerified(false);
+        setOnboardingComplete(false);
       }
-
-      // Simulate successful registration
-      setPendingVerification(email);
-      localStorage.setItem('pendingVerification', email);
-      
-      return { success: true, message: 'Registration successful! Please check your email for verification code.' };
     } catch (error) {
-      return { success: false, message: 'Registration failed. Please try again.' };
+      console.error("Error loading auth from localStorage", error);
+      setUser(null);
+      setIsAuthenticated(false);
+      setEmailVerified(false);
+      setOnboardingComplete(false);
     }
-  };
-
-  const verifyEmail = async (code: string): Promise<boolean> => {
-    // Simulate email verification
-    if (code === '123456' && pendingVerification) {
-      const newUser: User = {
-        id: Date.now().toString(),
-        name: 'New User',
-        email: pendingVerification,
-        role: 'author',
-        emailVerified: true,
-        avatar: undefined,
-        genres: [],
-        bio: ''
-      };
-      
-      setUser(newUser);
-      localStorage.setItem('user', JSON.stringify(newUser));
-      setPendingVerification(null);
-      localStorage.removeItem('pendingVerification');
-      return true;
-    }
-    return false;
-  };
-
-  const updateProfile = async (updates: Partial<User>): Promise<boolean> => {
-    if (!user) return false;
-    
-    const updatedUser = { ...user, ...updates };
-    setUser(updatedUser);
-    localStorage.setItem('user', JSON.stringify(updatedUser));
-    return true;
-  };
+  }, []);
 
   const logout = () => {
     setUser(null);
-    setPendingVerification(null);
-    localStorage.removeItem('user');
-    localStorage.removeItem('pendingVerification');
+    setIsAuthenticated(false);
+    setOnboardingComplete(false);
+    setEmailVerified(false);
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
   };
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      login, 
-      register, 
-      verifyEmail, 
-      updateProfile, 
-      logout, 
-      loading, 
-      pendingVerification 
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated,
+        onboardingComplete,
+        emailVerified,
+        emailAvailable,
+        emailToVerify: emailToVerify.current,
+        setUser,
+        setIsAuthenticated,
+        setOnboardingComplete,
+        setEmailToVerify,
+        setEmailVerified,
+        setEmailAvailable,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
-}
+};
+
+export const useAuth = (): AuthContextType => {
+  const context = useContext(AuthContext);
+  if (!context) throw new Error("useAuth must be used within an AuthProvider");
+  return context;
+};
+
+export default AuthProvider;

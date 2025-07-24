@@ -3,3 +3,8 @@ django-cors-headers
 djangorestframework
 psycopg2-binary
 djangorestframework-simplejwt
+cryptography
+dj-rest-auth
+django-allauth
+python-decouple
+cloudinary

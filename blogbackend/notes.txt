@@ -1,0 +1,21 @@
+WARNINGS:
+?: settings.ACCOUNT_AUTHENTICATION_METHOD is deprecated, use: settings.ACCOUNT_LOGIN_METHODS = {'email'}
+?: settings.ACCOUNT_EMAIL_REQUIRED is deprecated, use: settings.ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
+?: settings.ACCOUNT_USERNAME_REQUIRED is deprecated, use: settings.ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
+
+{
+    "fullName": "Ryder Silva",
+    "username": "possimussaepesed",
+    "password": "Pa$$w0rd!",
+    "confirmPassword": "Pa$$w0rd!",
+    "avatar": "",
+    "bio": "A duis dignissimos et reprehenderit",
+    "genres": [
+        "Technology",
+        "Web Development",
+        "Business",
+        "Product Design",
+        "Marketing",
+        "Travel"
+    ]
+}
