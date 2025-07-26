@@ -1,9 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { registerApi } from "../services/authService";
-import { useAuth } from "../contexts/AuthContext";
-import { RegisterFormData, RegisterResponse } from "../types/types";
+import { registerApi } from "../../services/authService";
+import { useAuth } from "../../contexts/AuthContext";
+import { RegisterFormData, RegisterResponse } from "../../types/types";
 import { AxiosError } from "axios";
+import toast from "react-hot-toast";
 
 const useRegister = () => {
   const {
@@ -22,7 +23,11 @@ const useRegister = () => {
   error,
   data,
 } = useMutation<RegisterResponse, AxiosError, RegisterFormData>({
-  mutationFn: (formData) => registerApi(formData),
+  mutationFn: async (formData) => await toast.promise(registerApi(formData),{
+    loading: 'Siging up...',
+    success: "Sign up successful!",
+    error: "Sign up failed!"
+  }),
   onSuccess: (data) => {
     console.log(data);
     setUser(data.user);

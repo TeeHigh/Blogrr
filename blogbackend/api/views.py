@@ -61,7 +61,8 @@ class UserRegisterView(generics.CreateAPIView):
 
         return Response({
             "user": UserSerializer(user).data,
-            "token": token,
+            "access_token": token,
+            "refresh_token": refresh,
         }, status=status.HTTP_201_CREATED)
     
 

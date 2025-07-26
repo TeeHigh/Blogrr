@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 import { useMutation } from "@tanstack/react-query";
-import { verifyEmailOtpApi } from "../services/authService";
+import { verifyEmailOtpApi } from "../../services/authService";
 
 export default function useVerifyOtp() {
   const {

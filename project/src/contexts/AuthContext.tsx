@@ -7,7 +7,6 @@ import React, {
   Dispatch,
   SetStateAction,
   useRef,
-  MutableRefObject,
 } from "react";
 import { User } from "../types/types";
 
@@ -77,7 +76,8 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsAuthenticated(false);
     setOnboardingComplete(false);
     setEmailVerified(false);
-    localStorage.removeItem("token");
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
     localStorage.removeItem("user");
   };
 

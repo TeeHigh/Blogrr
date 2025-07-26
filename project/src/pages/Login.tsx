@@ -1,14 +1,17 @@
 import React, { useState } from "react";
 import { Navigate, useLocation, Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
-import useLogin from "../hooks/useLogin";
+import useLogin from "../hooks/authHooks/useLogin.ts";
 import { useAuth } from "../contexts/AuthContext";
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
+import { APIError } from "../types/types.ts";
 
 export default function Login() {
-  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [formData, setFormData] = useState({
+    email: "ifeoluwaset@gmail.com",
+    password: "Oreoluwasubomi1$",
+  });
   const [showPassword, setShowPassword] = useState(false);
-
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -28,17 +31,13 @@ export default function Login() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      await login(formData);
-    } catch (err: AxiosError | any) {
-      console.error(err.message);
-    }
+    login(formData);
+    console.log(error);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-between auth-page-background">
       <div className="max-w-md w-full p-6 mx-auto">
-
         <div className="text-center mb-8">
           <img
             src="/assets/logos/BlueOnTransparent.png"
@@ -46,7 +45,6 @@ export default function Login() {
             className="login-logo w-48 mx-auto mb-4 cursor-pointer"
             onClick={() => navigate("/")}
           />
-
         </div>
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-primary mb-2">
@@ -58,7 +56,6 @@ export default function Login() {
         </div>
 
         <div className="bg-white rounded-xl shadow-lg border p-8">
-          
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label
@@ -113,12 +110,22 @@ export default function Login() {
                   )}
                 </button>
               </div>
-            <button type="button" className="hover:underline text-primary-light hover:text-primary text-[0.75rem]">Forgot password?</button>
+              <button
+                type="button"
+                className="hover:underline text-primary-light hover:text-primary text-[0.75rem]"
+              >
+                Forgot password?
+              </button>
             </div>
 
             {isError && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                <p className="text-red-600 text-sm">{"Login failed"}</p>
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-center">
+                {/* <p className="text-red-600 text-sm">{error?.status === 401 ? "No user found with the given credentials!" : "Something went wrong!"}</p> */}
+                <p className="text-cancel text-sm">
+                  {axios.isAxiosError<APIError>(error) && error.response?.data?.detail
+                    ? error.response.data.detail
+                    : "Something went wrong!"}
+                </p>
               </div>
             )}
 
@@ -130,8 +137,6 @@ export default function Login() {
               {isPending ? "Signing in..." : "Sign in"}
             </button>
           </form>
-
-          
 
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">

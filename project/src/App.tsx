@@ -15,6 +15,7 @@ import Dashboard from "./pages/Dashboard";
 import AuthProvider, { useAuth } from "./contexts/AuthContext";
 import { BlogProvider } from "./contexts/BlogContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "react-hot-toast";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -54,6 +55,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <BlogProvider>
+          <Toaster position="top-center" />
           <AppRouter />
         </BlogProvider>
       </AuthProvider>

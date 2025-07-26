@@ -4,7 +4,7 @@ import { Navigate, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { FcGoogle } from "react-icons/fc";
 import { Github } from "lucide-react";
-import useCheckEmailAvailability from "../hooks/useCheckEmailAvailability";
+import useCheckEmailAvailability from "../hooks/authHooks/useCheckEmailAvailability";
 
 export default function Register() {
   const [formData, setFormData] = useState({

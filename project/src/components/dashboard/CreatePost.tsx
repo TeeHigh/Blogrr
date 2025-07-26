@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Save, Eye, Image, Tag } from 'lucide-react';
-import { useBlog } from '../../contexts/BlogContext';
-import { useAuth } from '../../contexts/AuthContext';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Save, Eye, Image, Tag } from "lucide-react";
+import { useBlog } from "../../contexts/BlogContext";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function CreatePost() {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [excerpt, setExcerpt] = useState('');
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [excerpt, setExcerpt] = useState("");
   const [tags, setTags] = useState<string[]>([]);
-  const [newTag, setNewTag] = useState('');
-  const [coverImage, setCoverImage] = useState('');
-  const [status, setStatus] = useState<'draft' | 'published'>('draft');
+  const [newTag, setNewTag] = useState("");
+  const [coverImage, setCoverImage] = useState("");
+  const [status, setStatus] = useState<"draft" | "published">("draft");
   const [saving, setSaving] = useState(false);
 
   const { addPost } = useBlog();
@@ -21,12 +21,12 @@ export default function CreatePost() {
   const handleAddTag = () => {
     if (newTag.trim() && !tags.includes(newTag.trim())) {
       setTags([...tags, newTag.trim()]);
-      setNewTag('');
+      setNewTag("");
     }
   };
 
   const handleRemoveTag = (tagToRemove: string) => {
-    setTags(tags.filter(tag => tag !== tagToRemove));
+    setTags(tags.filter((tag) => tag !== tagToRemove));
   };
 
   const calculateReadTime = (content: string) => {
@@ -40,23 +40,24 @@ export default function CreatePost() {
     if (!title.trim() || !content.trim()) return;
 
     setSaving(true);
-    
-    try {
-      addPost({
-        title: title.trim(),
-        content: content.trim(),
-        excerpt: excerpt.trim() || content.trim().substring(0, 150) + '...',
-        author: user?.name || 'Anonymous',
-        authorAvatar: user?.avatar || '',
-        tags,
-        readTime: calculateReadTime(content),
-        status,
-        coverImage: coverImage.trim() || undefined
-      });
+    const post = {
+      title: title.trim(),
+      content: content.trim(),
+      excerpt: excerpt.trim() || content.trim().substring(0, 150) + "...",
+      author: user?.fullname || "Anonymous",
+      authorAvatar: user?.avatar || "",
+      tags,
+      readTime: calculateReadTime(content),
+      status,
+      coverImage: coverImage.trim() || undefined,
+    };
+    console.log(post);
 
-      navigate('/dashboard/posts');
+    try {
+      addPost(post);
+      navigate("/dashboard/posts");
     } catch (error) {
-      console.error('Failed to save post:', error);
+      console.error("Failed to save post:", error);
     } finally {
       setSaving(false);
     }
@@ -75,7 +76,10 @@ export default function CreatePost() {
         <div className="bg-white rounded-lg shadow-sm border p-6 space-y-6">
           {/* Title */}
           <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="title"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Post Title
             </label>
             <input
@@ -91,7 +95,10 @@ export default function CreatePost() {
 
           {/* Cover Image */}
           <div>
-            <label htmlFor="coverImage" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="coverImage"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Cover Image URL (optional)
             </label>
             <div className="relative">
@@ -112,7 +119,7 @@ export default function CreatePost() {
                   alt="Cover preview"
                   className="max-w-full h-48 object-cover rounded-lg border border-gray-200"
                   onError={(e) => {
-                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.style.display = "none";
                   }}
                 />
               </div>
@@ -121,7 +128,10 @@ export default function CreatePost() {
 
           {/* Excerpt */}
           <div>
-            <label htmlFor="excerpt" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="excerpt"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Excerpt (optional)
             </label>
             <textarea
@@ -136,7 +146,9 @@ export default function CreatePost() {
 
           {/* Tags */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Tags</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Tags
+            </label>
             <div className="flex flex-wrap gap-2 mb-3">
               {tags.map((tag) => (
                 <span
@@ -161,7 +173,9 @@ export default function CreatePost() {
                   type="text"
                   value={newTag}
                   onChange={(e) => setNewTag(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
+                  onKeyPress={(e) =>
+                    e.key === "Enter" && (e.preventDefault(), handleAddTag())
+                  }
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Add a tag..."
                 />
@@ -178,7 +192,10 @@ export default function CreatePost() {
 
           {/* Content */}
           <div>
-            <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="content"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Content
             </label>
             <textarea
@@ -204,22 +221,26 @@ export default function CreatePost() {
                 type="radio"
                 name="status"
                 value="draft"
-                checked={status === 'draft'}
-                onChange={(e) => setStatus(e.target.value as 'draft')}
+                checked={status === "draft"}
+                onChange={(e) => setStatus(e.target.value as "draft")}
                 className="text-blue-600 focus:ring-blue-500"
               />
-              <span className="text-sm font-medium text-gray-700">Save as Draft</span>
+              <span className="text-sm font-medium text-gray-700">
+                Save as Draft
+              </span>
             </label>
             <label className="flex items-center gap-2">
               <input
                 type="radio"
                 name="status"
                 value="published"
-                checked={status === 'published'}
-                onChange={(e) => setStatus(e.target.value as 'published')}
+                checked={status === "published"}
+                onChange={(e) => setStatus(e.target.value as "published")}
                 className="text-blue-600 focus:ring-blue-500"
               />
-              <span className="text-sm font-medium text-gray-700">Publish Now</span>
+              <span className="text-sm font-medium text-gray-700">
+                Publish Now
+              </span>
             </label>
           </div>
 
@@ -237,7 +258,11 @@ export default function CreatePost() {
               className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Save className="h-4 w-4" />
-              {saving ? 'Saving...' : status === 'published' ? 'Publish' : 'Save Draft'}
+              {saving
+                ? "Saving..."
+                : status === "published"
+                ? "Publish"
+                : "Save Draft"}
             </button>
           </div>
         </div>

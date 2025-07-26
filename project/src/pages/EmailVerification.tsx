@@ -3,9 +3,9 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { Mail, ArrowLeft, RefreshCw } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 // import { verifyEmailOtp } from "../services/authService";
-import useSendOtp from "../hooks/useSendOtp";
-import useCheckEmailAvailability from "../hooks/useCheckEmailAvailability";
-import useVerifyOtp from "../hooks/useVerifyOtp";
+import useSendOtp from "../hooks/authHooks/useSendOtp";
+import useCheckEmailAvailability from "../hooks/authHooks/useCheckEmailAvailability";
+import useVerifyOtp from "../hooks/authHooks/useVerifyOtp";
 
 export default function EmailVerification() {
   const [code, setCode] = useState(["", "", "", "", "", ""]);

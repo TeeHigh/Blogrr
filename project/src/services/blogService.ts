@@ -9,3 +9,21 @@ export async function getDashboardData() {
     throw error;
   }
 }
+
+export async function createBlogApi(){
+  try {
+    const response = await api.post("/api/blog/create/");
+    return response.data;
+  }
+  catch(err){
+    console.error("Error creating blog:", err)
+  }
+}
+
+export async function updateBlogApi(){
+  
+}
+
+export async function deleteBlogApi(id: string){
+
+}

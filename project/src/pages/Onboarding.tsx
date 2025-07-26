@@ -17,7 +17,7 @@ import {
 import { useAuth } from "../contexts/AuthContext";
 import api from "../api";
 import { HiOutlineCheckCircle, HiOutlineXCircle } from "react-icons/hi";
-import useRegister from "../hooks/useRegister";
+import useRegister from "../hooks/authHooks/useRegister";
 import { RegisterFormData } from "../types/types";
 
 const GENRES = [
@@ -184,7 +184,8 @@ export default function Onboarding() {
         return (
           profileData.fullname.trim().length > 1 &&
           profileData.username.trim().length >= 3 &&
-          profileData.password.length >= 6
+          profileData.password.length >= 6 &&
+          !errors.length
         );
       case 2:
         return true;
@@ -193,7 +194,7 @@ export default function Onboarding() {
       case 4:
         return profileData.genres.length >= 3;
       default:
-        return false;
+        return !errors.length;
     }
   };
 

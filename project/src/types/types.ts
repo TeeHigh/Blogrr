@@ -1,3 +1,7 @@
+export interface APIError {
+  detail: string;
+}
+
 export type RegisterFormData = {
   fullname: string;
   username: string;
@@ -40,7 +44,8 @@ export interface LoginResponse {
     bio?: string;
     emailVerified: boolean;
   };
-  token: string;
+  access: string;
+  refresh: string;
 }
 
 export interface User {

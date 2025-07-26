@@ -1,7 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
-from django.db import models
 from django.conf import settings
+
+import uuid
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -21,6 +22,7 @@ class CustomUserManager(BaseUserManager):
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=150, unique=True)  # username
     full_name = models.CharField(max_length=100, blank=True)       # full name
@@ -49,15 +51,17 @@ class Blog(models.Model):
         PUBLISHED = 'published', 'Published'
 
     title = models.CharField(max_length=200)
-    summary = models.CharField(max_length=300, null=True, blank=True)
+    excerpt = models.CharField(max_length=300, null=True, blank=True)
     content = models.TextField()
-    image = models.ImageField(upload_to='blogs/', null=True, blank=True)
-    tag = models.CharField(max_length=50, null=True, blank=True)
+    coverImage = models.ImageField(upload_to='blogs/', null=True, blank=True)
+    tags = models.CharField(max_length=50, null=True, blank=True)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.DRAFT)
     is_archived = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='posts')
+    authorAvatar = models.URLField(null=True, blank=True)
+    readTime = models.CharField(max_length=10, null=True, blank=True)
 
     def __str__(self):
         return self.title
