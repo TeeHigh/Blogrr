@@ -1,21 +1,21 @@
 
 import { Link } from 'react-router-dom';
 import { FileText, Eye, Clock, TrendingUp, PlusCircle, MessageCircle } from 'lucide-react';
-import { useBlog } from '../../contexts/BlogContext';
+import { useBlogContext } from '../../contexts/BlogContext';
 import { useAuth } from '../../contexts/AuthContext';
 
 export default function DashboardOverview() {
-  const { posts } = useBlog();
+  const { authorPosts } = useBlogContext();
   const { user } = useAuth();
   
-  const userPosts = posts.filter(post => post.author === user?.fullname);
-  const publishedPosts = userPosts.filter(post => post.status === 'published');
-  const draftPosts = userPosts.filter(post => post.status === 'draft');
+  
+  const publishedPosts = authorPosts.filter(post => post.status === 'published');
+  const draftPosts = authorPosts.filter(post => post.status === 'draft');
 
   const stats = [
     {
       name: 'Total Posts',
-      value: userPosts.length.toString(),
+      value: authorPosts.length.toString(),
       icon: FileText,
       color: 'bg-blue-500'
     },
@@ -43,7 +43,7 @@ export default function DashboardOverview() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Welcome back, <span className='capitalize'>{user?.username}</span></h1>
+          <h1 className="text-2xl font-bold text-gray-900">Welcome back, <span className='lowercase'>{user?.username}</span></h1>
           <p className="text-gray-600">Here's what's happening with your blog</p>
         </div>
         <div className="flex items-center gap-3">
@@ -69,7 +69,7 @@ export default function DashboardOverview() {
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (
-            <div key={stat.name} className="bg-white rounded-lg shadow-sm border p-6">
+            <div key={stat.name} className="bg-white rounded-lg shadow-sm border p-4">
               <div className="flex items-center">
                 <div className={`p-2 rounded-lg ${stat.color}`}>
                   <Icon className="h-6 w-6 text-white" />
@@ -90,14 +90,14 @@ export default function DashboardOverview() {
           <h2 className="text-lg font-semibold text-gray-900">Recent Posts</h2>
         </div>
         <div className="p-6">
-          {userPosts.length > 0 ? (
+          {authorPosts.length > 0 ? (
             <div className="space-y-4">
-              {userPosts.slice(0, 5).map((post) => (
+              {authorPosts.slice(0, 5).map((post) => (
                 <div key={post.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                   <div className="flex-1">
                     <h3 className="font-medium text-gray-900">{post.title}</h3>
                     <p className="text-sm text-gray-500 mt-1">
-                      {post.status === 'published' ? 'Published' : 'Draft'} • {new Date(post.publishedAt).toLocaleDateString()}
+                      {post.status === 'published' ? 'Published' : 'Draft'} • {post.created_at !== undefined && new Date(post.created_at).toLocaleDateString()}
                     </p>
                   </div>
                   <span className={`px-2 py-1 text-xs font-medium rounded-full ${

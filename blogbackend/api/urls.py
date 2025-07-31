@@ -3,9 +3,9 @@ from . import views
 
 urlpatterns = [
   path("dashboard/", views.AuthorDashboardView.as_view(), name="author-dashboard"),
-  path('blogs/', views.BlogListView.as_view(), name='blog-list'),
+  path('posts/', views.BlogListView.as_view(), name='blog-list'),
   path('blog/create/', views.CreateListBlogsView.as_view(), name='create-blog'),
-  path('blog/<int:pk>/', views.BlogDetailView.as_view(), name='delete-blog'),
+  path('post/<uuid:pk>/', views.BlogDetailView.as_view(), name='delete-blog'),
   path('check-username/', views.check_username, name='check-username'),
   path('check-email/', views.check_email_availability, name='check-email'),
   path('send-otp/', views.send_otp_to_email, name='send-otp'),

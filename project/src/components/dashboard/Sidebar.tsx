@@ -7,7 +7,6 @@ import {
   MessageCircle, 
   Settings, 
   LogOut, 
-  PenTool,
   X
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -61,12 +60,12 @@ export default function Sidebar({ onClose }: SidebarProps) {
       <div className="p-4 border-b border-gray-200">
         <div className="flex items-center gap-3">
           <img
-            src={user?.avatar}
-            alt={user?.name}
+            src={user?.avatar || '/assets/avatars/default.png'}
+            alt={user?.fullname}
             className="w-10 h-10 rounded-full object-cover"
           />
           <div>
-            <p className="font-semibold text-gray-900">{user?.name}</p>
+            <p className="font-semibold text-gray-900">{user?.fullname}</p>
             <p className="text-sm text-gray-500 capitalize">{user?.role}</p>
           </div>
         </div>

@@ -1,29 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Save,
-  Eye,
-  Image,
-  Tag,
-  Upload,
-  AlertCircleIcon,
-  X,
-} from "lucide-react";
+import { Save, Eye, Image, Tag } from "lucide-react";
 import { useBlogContext } from "../../contexts/BlogContext";
 import { useAuth } from "../../contexts/AuthContext";
 import useCreateBlog from "../../hooks/blogHooks/useCreateBlog";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import {
-  deleteFromCloudinary,
-  uploadToCloudinary,
-} from "../../utils/uploadToCloudinary";
 
-export default function CreatePost({
-  mode = "create",
-}: {
-  mode?: "create" | "edit";
-}) {
+export default function CreatePost({mode = "create"}: { mode?: "create" | "edit" }) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [excerpt, setExcerpt] = useState("");
@@ -32,11 +16,9 @@ export default function CreatePost({
   const [coverImage, setCoverImage] = useState("");
   const [status, setStatus] = useState<"draft" | "published">("draft");
   const [saving, setSaving] = useState(false);
-  const [uploadingCoverImage, setUploadingCoverImage] = useState(false);
-  const [coverImagePublicID, setCoverImagePublicID] = useState<string>("");
 
   const navigate = useNavigate();
-  const {
+  const { 
     register,
     handleSubmit,
     formState: { errors },
@@ -56,52 +38,6 @@ export default function CreatePost({
 
   const handleRemoveTag = (tagToRemove: string) => {
     setTags(tags.filter((tag) => tag !== tagToRemove));
-  };
-
-  const handleAddCoverImage = async (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const MAX_SIZE_MB = 2;
-    const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
-
-    if (file.size > MAX_SIZE_BYTES) {
-      toast.error(
-        `File is too large. Please upload an image under ${MAX_SIZE_MB}MB.`,
-        {
-          icon: <AlertCircleIcon className="text-orange-500" />,
-        }
-      );
-      return;
-    }
-
-    setUploadingCoverImage(true);
-
-    try {
-      const { secureUrl, publicId } = await uploadToCloudinary(file);
-      setCoverImage(secureUrl);
-      setCoverImagePublicID(publicId);
-      toast.success("Image upload successful!");
-    } catch (err) {
-      toast.error("Upload failed");
-      console.error(err);
-    } finally {
-      setUploadingCoverImage(false);
-    }
-  };
-
-  const handleRemoveCoverImage = async () => {
-    try {
-      await deleteFromCloudinary(coverImagePublicID);
-      setCoverImage("");
-      setCoverImagePublicID("");
-      toast.success("Cover image removed");
-    } catch (error) {
-      console.error("Failed to remove cover image:", error);
-      toast.error("Failed to remove cover image");
-    }
   };
 
   const calculateReadTime = (content: string) => {
@@ -125,9 +61,7 @@ export default function CreatePost({
       status,
       coverImage: coverImage.trim() || undefined,
       published_at: status === "published" ? new Date().toISOString() : null,
-      ...(mode === "create"
-        ? { created_at: new Date().toISOString() }
-        : { updated_at: new Date().toISOString() }),
+      ...(mode === "create" ? {created_at: new Date().toISOString()} : {updated_at : new Date().toISOString()}),
     };
     console.log(post);
 
@@ -145,7 +79,7 @@ export default function CreatePost({
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{mode === "create" ? "Create New" : "Edit"} Post</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Create New Post</h1>
           <p className="text-gray-600">Write and publish your blog post</p>
         </div>
       </div>
@@ -164,11 +98,11 @@ export default function CreatePost({
               type="text"
               id="title"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              // onChange={(e) => setTitle(e.target.value)}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
               placeholder="Enter your post title..."
               required
-              // {...register("title", { required: "Title is required" })}
+              {...register("title", { required: "Title is required" })}
             />
           </div>
 
@@ -177,7 +111,6 @@ export default function CreatePost({
             <label
               htmlFor="coverImage"
               className="block text-sm font-medium text-gray-700 mb-2"
-              aria-disabled={uploadingCoverImage}
             >
               Cover Image URL (optional)
             </label>
@@ -189,43 +122,8 @@ export default function CreatePost({
                 value={coverImage}
                 onChange={(e) => setCoverImage(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="paste image url (e.g. https://example.com/image.jpg)"
-                disabled={uploadingCoverImage}
-              />
+                placeholder="https://example.com/image.jpg"
 
-              {coverImage && (
-                <button
-                  onClick={handleRemoveCoverImage}
-                  className="w-full flex items-center justify-center gap-2 py-2 px-4 text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors"
-                  disabled={uploadingCoverImage}
-                >
-                  <X className="h-4 w-4" /> Remove Photo
-                </button>
-              )}
-            </div>
-            <div className="flex items-center justify-center gap-1 text-md text-gray-500 my-2">
-              <hr className="flex-grow" />
-              <span>or</span>
-              <hr className="flex-grow" />
-            </div>
-            <div>
-              <label
-                htmlFor="avatar-upload"
-                className="w-full flex items-center justify-center gap-2 py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer mb-3"
-                aria-disabled={uploadingCoverImage}
-              >
-                <Upload className="h-4 w-4" />{" "}
-                {coverImage
-                  ? "Change cover image"
-                  : "Upload image (max size 2MB)*"}
-              </label>
-              <input
-                id="avatar-upload"
-                type="file"
-                accept="image/*"
-                onChange={handleAddCoverImage}
-                className="hidden"
-                disabled={false}
               />
             </div>
             {coverImage && (
@@ -263,7 +161,6 @@ export default function CreatePost({
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Brief description of your post..."
             />
-            <p className="text-xs text-gray-500">{excerpt.length}/300 characters</p>
           </div>
 
           {/* Tags */}
@@ -318,7 +215,7 @@ export default function CreatePost({
               htmlFor="content"
               className="block text-sm font-medium text-gray-700 mb-2"
             >
-              Content*
+              Content
             </label>
             <textarea
               id="content"

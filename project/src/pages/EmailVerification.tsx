@@ -60,11 +60,18 @@ export default function EmailVerification() {
 
 
   const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
-    if (e.key === "Backspace" && !code[index] && index > 0) {
-      const prevInput = document.getElementById(`code-${index - 1}`);
-      prevInput?.focus();
+  if (e.key === "Backspace" && !code[index] && index > 0) {
+    const prevInput = document.getElementById(`code-${index - 1}`);
+    prevInput?.focus();
+  }
+
+  if (e.key === "Enter") {
+    const completeCode = code.join("");
+    if (completeCode.length === 6 && code.every((digit) => digit !== "")) {
+      handleVerify(completeCode);
     }
-  };
+  }
+};
 
   const handleVerify = async (verificationCode: string) => {
     const codeToVerify = verificationCode || code.join("");

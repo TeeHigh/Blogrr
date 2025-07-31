@@ -20,8 +20,9 @@ from .serializers import BlogSerializer, UserSerializer, CustomTokenObtainPairSe
 
 User = get_user_model()
 
+# Public Blog List view
 class BlogListView(generics.ListAPIView):
-    queryset = Blog.objects.all().order_by('-created_at')
+    queryset = Blog.objects.filter(status=Blog.Status.PUBLISHED, is_archived=False).order_by('-created_at')
     serializer_class = BlogSerializer
     permission_classes = [AllowAny]  # Allow any user to view the list of blogs
 
@@ -34,11 +35,7 @@ class AuthorDashboardView(generics.ListAPIView):
         blog_data = BlogSerializer(blogs, many=True).data
 
         return Response({
-            "author": {
-                "id": user.id,
-                "username": user.username,
-                "email": user.email
-            },
+            "author": UserSerializer(user).data,
             "blogs": blog_data
         })
     
@@ -60,9 +57,9 @@ class UserRegisterView(generics.CreateAPIView):
         token = str(refresh.access_token)
 
         return Response({
-            "user": UserSerializer(user).data,
-            "access_token": token,
-            "refresh_token": refresh,
+            # "user": UserSerializer(user).data,
+            "access_token": str(token),
+            "refresh_token": str(refresh),
         }, status=status.HTTP_201_CREATED)
     
 

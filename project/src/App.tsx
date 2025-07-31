@@ -1,21 +1,24 @@
-// import React, { useState, useEffect } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
 } from "react-router-dom";
-import HomePage from "./pages/HomePage";
-import BlogPost from "./pages/BlogPost";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import EmailVerification from "./pages/EmailVerification";
-import Onboarding from "./pages/Onboarding";
-import Dashboard from "./pages/Dashboard";
+const HomePage = React.lazy(() => import("./pages/HomePage"));
+const BlogPost = React.lazy(() => import("./pages/BlogPost"));
+const Login = React.lazy(() => import("./pages/Login"));
+const Register = React.lazy(() => import("./pages/Register"));
+const EmailVerification = React.lazy(() => import("./pages/EmailVerification"));
+const Onboarding = React.lazy(() => import("./pages/Onboarding"));
+const Dashboard = React.lazy(() => import("./pages/Dashboard"));
+
 import AuthProvider, { useAuth } from "./contexts/AuthContext";
 import { BlogProvider } from "./contexts/BlogContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "react-hot-toast";
+import Loader from './components/Loader';
+import isTokenExpired from './hooks/useIsTokenValid';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -26,7 +29,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 function AppRouter() {
   return (
     <Router>
-      <Routes>
+      <Suspense fallback={<Loader />}>
+        <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/blog/:id" element={<BlogPost />} />
         <Route path="/login" element={<Login />} />
@@ -43,6 +47,7 @@ function AppRouter() {
         />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </Suspense>
     </Router>
   );
 }
@@ -50,6 +55,14 @@ function AppRouter() {
 const queryClient = new QueryClient();
 
 function App() {
+//   useEffect(() => {
+//   const token = localStorage.getItem("access_token");
+//   if (!token || isTokenExpired(token)) {
+//     localStorage.removeItem("access_token");
+//     localStorage.removeItem("refresh_token");
+//     window.location.href = "/login"; // or use navigate("/login")
+//   }
+// }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

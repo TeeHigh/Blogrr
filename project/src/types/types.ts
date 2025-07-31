@@ -2,6 +2,16 @@ export interface APIError {
   detail: string;
 }
 
+export interface User {
+  fullname: string;
+  username: string;
+  email: string;
+  avatar?: string;
+  role: "author" | "admin";
+  genres?: string[];
+  bio?: string;
+}
+
 export type RegisterFormData = {
   fullname: string;
   username: string;
@@ -24,7 +34,8 @@ export interface RegisterResponse {
     bio?: string;
     emailVerified: boolean;
   };
-  token: string;
+  access_token: string;
+  refresh_token: string;
 }
 
 export type LoginInput = {
@@ -48,12 +59,29 @@ export interface LoginResponse {
   refresh: string;
 }
 
-export interface User {
-  fullname: string;
-  username: string;
-  email: string;
-  avatar?: string;
-  role: "author" | "admin";
-  genres?: string[];
-  bio?: string;
+export interface AddPostFormData {
+  title: string;
+  content: string;
+  excerpt: string;
+  author: string;
+  tags: string[];
+  readTime: number;
+  status: "draft" | "published";
+  coverImage: string | undefined;
+}
+
+export interface BlogPost {
+  id: string;
+  title: string;
+  content: string;
+  excerpt: string;
+  author: string;
+  author_avatar: string;
+  created_at?: string;  
+  updated_at?: string;
+  published_at?: string | null;
+  tags: string[];
+  readTime: number;
+  status: "draft" | "published";
+  coverImage?: string;
 }

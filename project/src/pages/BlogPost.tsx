@@ -1,12 +1,14 @@
 import { useParams, Link } from 'react-router-dom';
 import { Calendar, Clock, ArrowLeft, Share2, Bookmark } from 'lucide-react';
-import { useBlog } from '../contexts/BlogContext';
+import { useBlogContext } from '../contexts/BlogContext';
 import Header from '../components/Header';
+import Loader from '../components/Loader';
 
 export default function BlogPost() {
   const { id } = useParams<{ id: string }>();
-  const { getPost } = useBlog();
-  const post = id ? getPost(id) : undefined;
+  const { useSingleBlog } = useBlogContext();
+  const { data: post, isLoading } = useSingleBlog(id || '');
+  // const post = id ? getPost(id) : undefined;
 
   if (!post) {
     return (
@@ -17,6 +19,17 @@ export default function BlogPost() {
           <Link to="/" className="text-blue-600 hover:text-blue-700 font-medium">
             ← Back to home
           </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="max-w-4xl mx-auto px-4 py-16">
+          <Loader />
         </div>
       </div>
     );
@@ -64,7 +77,7 @@ export default function BlogPost() {
             <div className="flex items-center justify-between flex-wrap gap-4">
               <div className="flex items-center gap-4">
                 <img
-                  src={post.authorAvatar}
+                  src={post.author_avatar || '/assets/avatars/default.png'}
                   alt={post.author}
                   className="w-12 h-12 rounded-full object-cover"
                 />
@@ -73,7 +86,7 @@ export default function BlogPost() {
                   <div className="flex items-center gap-4 text-sm text-gray-500">
                     <span className="flex items-center gap-1">
                       <Calendar className="h-4 w-4" />
-                      {new Date(post.publishedAt).toLocaleDateString('en-US', {
+                      {post.published_at && new Date(post.published_at).toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric'

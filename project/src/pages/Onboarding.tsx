@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import {
   Camera,
   User,
@@ -13,12 +13,17 @@ import {
   Lock,
   CheckCircle,
   AlertCircle,
+  AlertCircleIcon,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import api from "../api";
-import { HiOutlineCheckCircle, HiOutlineXCircle } from "react-icons/hi";
 import useRegister from "../hooks/authHooks/useRegister";
 import { RegisterFormData } from "../types/types";
+import {
+  deleteFromCloudinary,
+  uploadToCloudinary,
+} from "../utils/uploadToCloudinary";
+import toast from "react-hot-toast";
 
 const GENRES = [
   "Technology",
@@ -73,13 +78,15 @@ export default function Onboarding() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [showAvatarOptions, setShowAvatarOptions] = useState(false);
   const [usernameStatus, setUsernameStatus] = useState<string | null>(null);
+  const [avatarPublicId, setAvatarPublicId] = useState<string>("");
 
   const { user, emailToVerify, emailVerified } = useAuth();
-  const {registerUser, isPending} = useRegister();
+  const { registerUser, isPending } = useRegister();
 
   if (!emailVerified) {
     return <Navigate to="/register" replace />;
@@ -125,6 +132,54 @@ export default function Onboarding() {
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleAddAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const MAX_SIZE_MB = 2;
+    const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
+
+    if (file.size > MAX_SIZE_BYTES) {
+      toast.error(
+        `File is too large. Please upload an image under ${MAX_SIZE_MB}MB.`,
+        {
+          icon: <AlertCircleIcon className="text-orange-500" />,
+        }
+      );
+      return;
+    }
+
+    setUploadingAvatar(true);
+
+    try {
+      const { secureUrl } = await uploadToCloudinary(file);
+      setProfileData((prev) => ({
+        ...prev,
+        avatar: secureUrl,
+      }));
+      setAvatarPublicId(secureUrl);
+      setShowAvatarOptions(false);
+      toast.success("Image upload successful!");
+    } catch (err) {
+      toast.error("Upload failed");
+      console.error(err);
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
+  const handleRemoveAvatar = async () => {
+    try {
+      await deleteFromCloudinary(avatarPublicId);
+      setProfileData((prev) => ({ ...prev, avatar: "" }));
+      setShowAvatarOptions(false);
+      toast.success("Cover image removed");
+    } catch (error) {
+      console.error("Failed to remove avatar:", error);
+      toast.error("Failed to remove avatar");
+    }
+  };
+
   const handleInputChange = (field: string, value: string) => {
     setProfileData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
@@ -167,12 +222,12 @@ export default function Onboarding() {
   const handleComplete = async () => {
     setLoading(true);
 
-    const {confirmPassword, ...filteredProfileData} = profileData;
+    const { confirmPassword, ...filteredProfileData } = profileData;
 
     const formData: RegisterFormData = {
       email: emailToVerify,
-      ...filteredProfileData
-    }
+      ...filteredProfileData,
+    };
 
     registerUser(formData);
     console.log(formData);
@@ -431,7 +486,7 @@ export default function Onboarding() {
                   <div className="bg-white rounded-xl p-6 max-w-md w-full">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-lg font-semibold text-gray-900">
-                        Choose Avatar
+                        Upload Avatar
                       </h3>
                       <button
                         onClick={() => setShowAvatarOptions(false)}
@@ -441,40 +496,38 @@ export default function Onboarding() {
                       </button>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-3 mb-4">
-                      {SAMPLE_AVATARS.map((avatar, index) => (
-                        <button
-                          key={index}
-                          onClick={() => {
-                            setProfileData((prev) => ({ ...prev, avatar }));
-                            setShowAvatarOptions(false);
-                          }}
-                          className={`w-20 h-20 rounded-full overflow-hidden border-2 transition-colors ${
-                            profileData.avatar === avatar
-                              ? "border-blue-500"
-                              : "border-gray-200 hover:border-gray-300"
-                          }`}
-                        >
-                          <img
-                            src={avatar}
-                            alt={`Avatar ${index + 1}`}
-                            className="w-full h-full object-cover"
-                          />
-                        </button>
-                      ))}
-                    </div>
-
+                    {/* buttons for upload and removal of avatar */}
                     <div className="border-t pt-4">
-                      <button
-                        onClick={() => {
-                          // In a real app, this would open file picker
-                          alert("File upload would be implemented here");
-                        }}
-                        className="w-full flex items-center justify-center gap-2 py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                      {/* Upload button */}
+                      <label
+                        htmlFor="avatar-upload"
+                        className="w-full flex items-center justify-center gap-2 py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer mb-3"
+                        aria-disabled={uploadingAvatar}
                       >
-                        <Upload className="h-4 w-4" />
-                        Upload custom image
-                      </button>
+                        <Upload className="h-4 w-4" />{" "}
+                        {profileData.avatar
+                          ? "Change avatar"
+                          : "Upload image (max size 2MB)*"}
+                      </label>
+                      <input
+                        id="avatar-upload"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleAddAvatar}
+                        className="hidden"
+                        disabled={uploadingAvatar}
+                      />
+
+                      {/* Remove Photo Button - only show if an avatar is set */}
+                      {profileData.avatar && (
+                        <button
+                          onClick={handleRemoveAvatar}
+                          className="w-full flex items-center justify-center gap-2 py-2 px-4 text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors"
+                          disabled={uploadingAvatar}
+                        >
+                          <X className="h-4 w-4" /> Remove Photo
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -491,8 +544,19 @@ export default function Onboarding() {
         return (
           <div className="text-center space-y-6">
             <div className="space-y-4">
-              <div className="bg-blue-100 rounded-full p-6 w-20 h-20 mx-auto flex items-center justify-center">
+              {/* <div className="bg-blue-100 rounded-full p-6 w-20 h-20 mx-auto flex items-center justify-center">
                 <User className="h-10 w-10 text-blue-600" />
+              </div> */}
+              <div className="w-32 h-32 rounded-full bg-blue-100 flex items-center mx-auto justify-center overflow-hidden">
+                {profileData.avatar ? (
+                  <img
+                    src={profileData.avatar}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <User className="h-10 w-10 text-blue-600" />
+                )}
               </div>
               <h2 className="text-2xl font-bold text-gray-900">
                 Tell us about yourself

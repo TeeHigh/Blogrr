@@ -15,7 +15,7 @@ api.interceptors.request.use(
       "/user/register/",
       "/token/",
       "/token/refresh/",
-      "/blogs/",
+      "/posts/",
       "/check-username/",
       "/check-email/",
       "/verify-otp/",
@@ -45,13 +45,13 @@ api.interceptors.response.use(
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
-      !originalRequest.url?.includes("/token/refresh/")
+      !originalRequest.url?.includes("/api/token/refresh/")
     ) {
       originalRequest._retry = true;
       try {
         const refreshToken = localStorage.getItem("refresh_token");
         if (refreshToken) {
-          const res = await api.post("/token/refresh/", { refresh: refreshToken });
+          const res = await api.post("/api/token/refresh/", { refresh: refreshToken });
           const access = (res.data as { access: string }).access;
 
           localStorage.setItem("access_token", access);
@@ -68,6 +68,7 @@ api.interceptors.response.use(
       } catch (refreshError) {
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
+        localStorage.removeItem("user");
         window.location.href = "/login";
         return Promise.reject(refreshError);
       }

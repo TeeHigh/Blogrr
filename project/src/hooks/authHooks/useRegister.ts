@@ -29,17 +29,17 @@ const useRegister = () => {
     error: "Sign up failed!"
   }),
   onSuccess: (data) => {
-    console.log(data);
     setUser(data.user);
     setIsAuthenticated(true);
     setOnboardingComplete(!!data.user.fullname && emailVerified);
-    localStorage.setItem("token", data.token);
+    localStorage.setItem("access_token", data.access_token);
+    localStorage.setItem("refresh_token", data.refresh_token);
     localStorage.setItem("user", JSON.stringify(data.user));
     navigate("/dashboard");
   },
   onError: (err) =>{
     console.error(err.message);
-    // navigate("/register")
+    navigate("/register")
   }
 });
 

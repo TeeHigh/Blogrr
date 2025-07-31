@@ -8,8 +8,8 @@ import { APIError } from "../types/types.ts";
 
 export default function Login() {
   const [formData, setFormData] = useState({
-    email: "ifeoluwaset@gmail.com",
-    password: "Oreoluwasubomi1$",
+    email: "badgal@mailinator.com",
+    password: "Pa$$w0rd!",
   });
   const [showPassword, setShowPassword] = useState(false);
 
@@ -32,7 +32,6 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     login(formData);
-    console.log(error);
   };
 
   return (

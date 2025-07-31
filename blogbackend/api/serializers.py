@@ -50,7 +50,10 @@ class UserSerializer(serializers.ModelSerializer):
 
 class BlogSerializer(serializers.ModelSerializer):
     author = serializers.SerializerMethodField()
-    image = serializers.ImageField(required=False, allow_null=True)
+    tags = serializers.ListField(
+        child=serializers.CharField(), required=False
+    )
+    author_avatar = serializers.SerializerMethodField()
 
     class Meta:
         model = Blog
@@ -59,3 +62,21 @@ class BlogSerializer(serializers.ModelSerializer):
 
     def get_author(self, obj):
         return obj.author.get_full_name() or obj.author.username
+
+    def get_author_avatar(self, obj):
+        return obj.author.avatar if obj.author.avatar else ""
+    
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        # Convert comma-separated string to list
+        rep['tags'] = instance.tags.split(',') if instance.tags else []
+        return rep
+
+    def to_internal_value(self, data):
+        # First run normal validation
+        validated_data = super().to_internal_value(data)
+        tags = data.get("tags")
+        if tags and isinstance(tags, list):
+            # Join list into a comma-separated string
+            validated_data["tags"] = ",".join(tags)
+        return validated_data

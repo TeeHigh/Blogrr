@@ -50,17 +50,19 @@ class Blog(models.Model):
         DRAFT = 'draft', 'Draft'
         PUBLISHED = 'published', 'Published'
 
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=200)
     excerpt = models.CharField(max_length=300, null=True, blank=True)
     content = models.TextField()
-    coverImage = models.ImageField(upload_to='blogs/', null=True, blank=True)
+    coverImage = models.CharField(blank=True, null=True)
     tags = models.CharField(max_length=50, null=True, blank=True)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.DRAFT)
     is_archived = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    published_at = models.DateTimeField(null=True, blank=True)
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='posts')
-    authorAvatar = models.URLField(null=True, blank=True)
+    author_avatar = models.CharField(null=True, blank=True)
     readTime = models.CharField(max_length=10, null=True, blank=True)
 
     def __str__(self):

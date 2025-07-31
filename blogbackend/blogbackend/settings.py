@@ -44,8 +44,8 @@ INSTALLED_APPS = [
     'rest_framework',  # Django REST framework for building APIs
     'rest_framework.authtoken',  # Token authentication for REST framework
     'corsheaders',  # For handling CORS (Cross-Origin Resource Sharing)
-    'cloudinary',
-    'cloudinary_storage',
+    # 'cloudinary',
+    # 'cloudinary_storage',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
