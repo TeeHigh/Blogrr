@@ -14,7 +14,7 @@ export default function useCheckEmailAvailability() {
   const {sendOtp} = useSendOtp();
   const navigate = useNavigate();
 
-  const {mutate: checkEmailAvailability, isPending, data} = useMutation({
+  const {mutate: checkEmailAvailability, isPending, data, isError} = useMutation({
     mutationFn: (email: string) => checkEmailAvailabilityAPi(email),
     onSuccess: (data) => {
       if (data.isAvailable) {
@@ -46,6 +46,7 @@ export default function useCheckEmailAvailability() {
   return{
     checkEmailAvailability,
     isPending,
+    isError,
     data
   };
 }

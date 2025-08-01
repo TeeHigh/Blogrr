@@ -66,7 +66,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
           />
           <div>
             <p className="font-semibold text-gray-900">{user?.fullname}</p>
-            <p className="text-sm text-gray-500 capitalize">{user?.role}</p>
+            <p className="text-sm text-gray-500 capitalize">{user?.role || "author"}</p>
           </div>
         </div>
       </div>

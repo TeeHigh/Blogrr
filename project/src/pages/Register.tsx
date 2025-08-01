@@ -5,6 +5,9 @@ import { useAuth } from "../contexts/AuthContext";
 import { FcGoogle } from "react-icons/fc";
 import { Github } from "lucide-react";
 import useCheckEmailAvailability from "../hooks/authHooks/useCheckEmailAvailability";
+import toast from "react-hot-toast";
+import axios from "axios";
+import { APIError } from "../types/types";
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -15,7 +18,8 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
 
   const { user } = useAuth();
-  const { isPending, checkEmailAvailability} = useCheckEmailAvailability();
+  const { isPending, isError, checkEmailAvailability } =
+    useCheckEmailAvailability();
   const navigate = useNavigate();
 
   if (user) {
@@ -40,7 +44,7 @@ export default function Register() {
 
     setLoading(isPending);
     if (!validateForm()) return;
-    
+
     checkEmailAvailability(formData.email);
   };
 
@@ -68,7 +72,7 @@ export default function Register() {
       </div>
 
       {/* right side */}
-      <div className="max-w-md w-full mx-auto">
+      <div className="max-w-md w-full p-6 mx-auto">
         <div className="text-center mb-8">
           <img
             src="/assets/logos/BlueOnTransparent.png"
@@ -85,12 +89,16 @@ export default function Register() {
             Join our community of writers and creators
           </p>
         </div>
-        <div className="bg-white rounded-xl shadow-lg border p-8">
+        <div className="bg-white rounded-xl shadow-lg border p-8 mx-auto">
           <div className="space-y-4">
             <button
               type="button"
               className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded-lg py-3 hover:bg-gray-50 transition-colors"
-              onClick={() => console.log("Google sign in")}
+              onClick={() =>
+                toast("Google sign in not implemented yet", {
+                  icon: <FcGoogle className="h-5 w-5" />,
+                })
+              }
             >
               <FcGoogle className="h-5 w-5" />
               <span className="text-sm font-medium text-gray-700">
@@ -101,7 +109,11 @@ export default function Register() {
             <button
               type="button"
               className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded-lg py-3 hover:bg-gray-50 transition-colors"
-              onClick={() => console.log("GitHub sign in")}
+              onClick={() =>
+                toast("GitHub sign in not implemented yet", {
+                  icon: <Github className="h-5 w-5 text-gray-700" />,
+                })
+              }
             >
               <Github className="h-5 w-5 text-gray-700" />
               <span className="text-sm font-medium text-gray-700">
@@ -135,11 +147,15 @@ export default function Register() {
                 onChange={(e) => handleInputChange("email", e.target.value)}
                 className={`mt-1 block w-full px-4 py-2 border ${
                   errors.email ? "border-red-500" : "border-gray-300"
-                } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-secondary-light focus:border-transparent text-sm`}
+                } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-secondary-light focus:border-transparent text-base`}
                 placeholder="you@example.com"
               />
-              {errors.email && (
-                <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+              {isError && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-center mt-2">
+                  <p className="text-cancel text-sm">
+                    {errors.email || "Something went wrong!"}
+                  </p>
+                </div>
               )}
             </div>
 

@@ -10,6 +10,7 @@ import {
   getBlogByIdApi,
   createBlogApi,
   deleteBlogApi,
+  updateBlogApi,
 } from "../services/blogService";
 import { createContext, useContext, useState } from "react";
 import toast from "react-hot-toast";
@@ -19,16 +20,24 @@ import { BlogPost } from "../types/types";
 type BlogContextType = {
   authorPosts: BlogPost[];
   setAuthorPosts: React.Dispatch<React.SetStateAction<BlogPost[]>>;
+  editingBlog: BlogPost | null;
+  setEditingBlog: React.Dispatch<React.SetStateAction<BlogPost | null>>;
   useBlogs: () => ReturnType<typeof useQuery<BlogPost[]>>;
   usePublishedBlogs: () => ReturnType<typeof useQuery<BlogPost[]>>;
   useSingleBlog: (id: string) => ReturnType<typeof useQuery<BlogPost>>;
   useCreateBlog: () => UseMutationResult<
     void, // What the mutation returns
     Error, // Error type
-    Omit<BlogPost, "author_avatar" | "id">, // What mutate(data) expects
-    unknown // Context (usually unknown unless doing optimistic updates)
+    Omit<BlogPost, "author_avatar" | "id">,
+    unknown
   >;
+  useUpdateBlog: () => UseMutationResult<void, Error, UpdateBlogInput, unknown>;
   useDeleteBlog: () => ReturnType<typeof useMutation<void, Error, string>>;
+};
+
+type UpdateBlogInput = {
+  id: string;
+  post: Partial<BlogPost>;
 };
 
 const BlogContext = createContext<BlogContextType | undefined>(undefined);
@@ -36,6 +45,7 @@ const BlogContext = createContext<BlogContextType | undefined>(undefined);
 export const BlogProvider = ({ children }: { children: React.ReactNode }) => {
   const queryClient = useQueryClient();
   const [authorPosts, setAuthorPosts] = useState<BlogPost[]>([]);
+  const [ editingBlog, setEditingBlog] = useState<BlogPost | null>(null);
 
   // Queries
   const useBlogs = () =>
@@ -54,6 +64,8 @@ export const BlogProvider = ({ children }: { children: React.ReactNode }) => {
     useQuery<BlogPost>({
       queryKey: ["blogs", id],
       queryFn: () => getBlogByIdApi(id),
+      enabled: !!id, // prevent calling if id is empty
+      staleTime: 5 * 60 * 1000,
     });
 
   // Mutations
@@ -72,14 +84,30 @@ export const BlogProvider = ({ children }: { children: React.ReactNode }) => {
       onError: (err) => console.error("Failed to create blog", err),
     });
 
+  const useUpdateBlog = () => {
+    return useMutation<void, Error, UpdateBlogInput>({
+      mutationFn: async ({ id, post }) => {
+        return await toast.promise(updateBlogApi(id, post), {
+          loading: "Updating blog",
+          success: "Blog updated successfully!",
+          error: "Error updating blog!",
+        });
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["blogs"] });
+      },
+      onError: (err) => console.error("Failed to update blog", err),
+    });
+  };
+
   const useDeleteBlog = () =>
     useMutation({
       mutationFn: async (id: string) => {
         return await toast.promise(deleteBlogApi(id), {
           loading: "Deleting blog",
           success: "Blog deleted",
-          error: "Failed to delete blog"
-        })
+          error: "Failed to delete blog",
+        });
       },
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["blogs"] });
@@ -92,10 +120,13 @@ export const BlogProvider = ({ children }: { children: React.ReactNode }) => {
       value={{
         authorPosts,
         setAuthorPosts,
+        editingBlog,
+        setEditingBlog,
         useBlogs,
         usePublishedBlogs,
         useSingleBlog,
         useCreateBlog,
+        useUpdateBlog,
         useDeleteBlog,
       }}
     >

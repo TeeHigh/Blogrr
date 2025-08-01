@@ -13,7 +13,7 @@ import { useBlogContext } from "../../contexts/BlogContext";
 import { useAuth } from "../../contexts/AuthContext";
 
 export default function BlogManagement() {
-  const { authorPosts: userPosts, useDeleteBlog } = useBlogContext();
+  const { authorPosts: userPosts, useDeleteBlog, setEditingBlog } = useBlogContext();
   const { mutate: deletePost } = useDeleteBlog();
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
@@ -144,7 +144,10 @@ export default function BlogManagement() {
                     <button
                       className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                       title="Edit post"
-                      onClick={() => navigate(`/dashboard/edit/${post.id}`)}
+                      onClick={() => {
+                        setEditingBlog(post);
+                        navigate(`/dashboard/edit/${post.id}`);
+                      }}                      
                     >
                       <Edit className="h-4 w-4" />
                     </button>

@@ -73,10 +73,18 @@ class BlogSerializer(serializers.ModelSerializer):
         return rep
 
     def to_internal_value(self, data):
-        # First run normal validation
         validated_data = super().to_internal_value(data)
         tags = data.get("tags")
-        if tags and isinstance(tags, list):
-            # Join list into a comma-separated string
+
+        # If tags is a list, join it
+        if isinstance(tags, list):
             validated_data["tags"] = ",".join(tags)
+        # If tags is a string (like "[]"), handle gracefully
+        elif isinstance(tags, str) and tags.strip() == "[]":
+            validated_data["tags"] = ""
+        elif isinstance(tags, str):
+            # If a string is passed directly (e.g. from a buggy frontend), assume it's comma-separated
+            validated_data["tags"] = tags
+
         return validated_data
+

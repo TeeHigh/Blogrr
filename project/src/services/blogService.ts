@@ -63,8 +63,19 @@ export async function createBlogApi(data: Omit<BlogPost, "author_avatar" | "id">
   }
 }
 
-export async function updateBlogApi(){
-  
+export async function updateBlogApi(id: string, data: Partial<BlogPost>) {
+  try{
+    const response = await api.put(`/api/post/${id}/`, data);
+    return response.data;
+  }
+  catch(err){
+    if(axios.isAxiosError(err)){
+      if (err.response?.data?.tags) {
+        throw new Error(err.response.data.tags.join(", "));
+      }
+      throw new Error("Failed to update blog post");
+    }
+  }
 }
 
 export async function deleteBlogApi(id: string){

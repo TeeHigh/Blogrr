@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import {
   Save,
   Eye,
@@ -11,15 +11,17 @@ import {
 } from "lucide-react";
 import { useBlogContext } from "../../contexts/BlogContext";
 import { useAuth } from "../../contexts/AuthContext";
-import useCreateBlog from "../../hooks/blogHooks/useCreateBlog";
+// import useCreateBlog from "../../hooks/blogHooks/useCreateBlog";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import {
   deleteFromCloudinary,
   uploadToCloudinary,
 } from "../../utils/uploadToCloudinary";
+import { DotLoader } from "../DotLoader";
+import OverlayLoader from "../OverlayLoader";
 
-export default function CreatePost({
+export default function PostEditor({
   mode = "create",
 }: {
   mode?: "create" | "edit";
@@ -34,6 +36,7 @@ export default function CreatePost({
   const [saving, setSaving] = useState(false);
   const [uploadingCoverImage, setUploadingCoverImage] = useState(false);
   const [coverImagePublicID, setCoverImagePublicID] = useState<string>("");
+  const [originalData, setOriginalData] = useState<any>(null);
 
   const navigate = useNavigate();
   const {
@@ -44,8 +47,55 @@ export default function CreatePost({
     control,
   } = useForm();
 
-  const { addPost } = useCreateBlog();
+  const { useSingleBlog, useCreateBlog, useUpdateBlog } = useBlogContext();
+  const { id } = useParams();
+
+  const { mutate: updateBlog } = useUpdateBlog();
+  const { mutate: addPost } = useCreateBlog();
+
+  const { data: editingBlog, isPending: isFetchingPost } = useSingleBlog(
+    id ?? ""
+  );
+
   const { user } = useAuth();
+
+  useEffect(() => {
+    if (mode !== "edit" || !id || isFetchingPost) return;
+
+    if (!editingBlog) {
+      toast.error("No post found for editing");
+      setTimeout(() => navigate("/dashboard/posts"), 0);
+      return;
+    }
+
+    const cleanTags = editingBlog.tags || [];
+
+    setOriginalData({
+      title: editingBlog.title,
+      content: editingBlog.content,
+      excerpt: editingBlog.excerpt || "",
+      tags: cleanTags,
+      coverImage: editingBlog.coverImage || "",
+      status: editingBlog.status || "draft",
+    });
+
+    setTitle(editingBlog.title);
+    setContent(editingBlog.content);
+    setExcerpt(editingBlog.excerpt || "");
+    setTags(cleanTags);
+    setCoverImage(editingBlog.coverImage || "");
+    setStatus(editingBlog.status || "draft");
+  }, [mode, id, editingBlog, isFetchingPost, navigate]);
+
+  const hasChanged =
+    mode === "edit" && originalData
+      ? title !== originalData.title ||
+        content !== originalData.content ||
+        excerpt !== originalData.excerpt ||
+        coverImage !== originalData.coverImage ||
+        status !== originalData.status ||
+        JSON.stringify(tags) !== JSON.stringify(originalData.tags)
+      : true; // For create mode, always true
 
   const handleAddTag = () => {
     if (newTag.trim() && !tags.includes(newTag.trim())) {
@@ -131,25 +181,45 @@ export default function CreatePost({
     };
     console.log(post);
 
-    try {
-      addPost(post);
-      navigate("/dashboard/posts");
-    } catch (error) {
-      console.error("Failed to save post:", error);
-    } finally {
-      setSaving(false);
+    if (mode === "create") {
+      try {
+        addPost(post);
+        navigate("/dashboard/posts");
+      } catch (error) {
+        console.error("Failed to save post:", error);
+      } finally {
+        setSaving(false);
+      }
+    }
+
+    if (mode === "edit") {
+      if (!id) {
+        toast.error("Post ID is required for editing");
+        setSaving(false);
+        return;
+      }
+      try {
+        updateBlog({ id, post });
+        navigate("/dashboard/posts");
+      } catch (error) {
+        console.error("Failed to update post:", error);
+      } finally {
+        setSaving(false);
+      }
     }
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6 relative">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{mode === "create" ? "Create New" : "Edit"} Post</h1>
+          <h1 className="text-2xl font-bold text-gray-900">
+            {mode === "create" ? "Create New" : "Edit"} Post
+          </h1>
           <p className="text-gray-600">Write and publish your blog post</p>
         </div>
       </div>
-
+      {isFetchingPost && <OverlayLoader />}
       <form onSubmit={submitForm} className="space-y-6">
         <div className="bg-white rounded-lg shadow-sm border p-6 space-y-6">
           {/* Title */}
@@ -168,7 +238,6 @@ export default function CreatePost({
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
               placeholder="Enter your post title..."
               required
-              // {...register("title", { required: "Title is required" })}
             />
           </div>
 
@@ -263,7 +332,9 @@ export default function CreatePost({
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Brief description of your post..."
             />
-            <p className="text-xs text-gray-500">{excerpt.length}/300 characters</p>
+            <p className="text-xs text-gray-500">
+              {excerpt.length}/300 characters
+            </p>
           </div>
 
           {/* Tags */}
@@ -376,7 +447,12 @@ export default function CreatePost({
             </button>
             <button
               type="submit"
-              disabled={saving || !title.trim() || !content.trim()}
+              disabled={
+                saving ||
+                !title.trim() ||
+                !content.trim() ||
+                (mode === "edit" && !hasChanged)
+              }
               className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Save className="h-4 w-4" />

@@ -1,12 +1,12 @@
 import { Suspense, lazy, useEffect, useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import Sidebar from "../components/dashboard/Sidebar";
-import { Menu } from "lucide-react";
-import Loader from "../components/Loader";
+import { Menu } from "lucide-react";;
 import { useAuth } from "../contexts/AuthContext";
 import toast from "react-hot-toast";
 import { fetchUser } from "../services/fetchDashboardData";
 import { useBlogContext } from "../contexts/BlogContext";
+import OverlayLoader from "../components/OverlayLoader";
 
 // Lazy-loaded components
 const DashboardOverview = lazy(
@@ -15,7 +15,7 @@ const DashboardOverview = lazy(
 const BlogManagement = lazy(
   () => import("../components/dashboard/BlogManagement")
 );
-const CreatePost = lazy(() => import("../components/dashboard/CreatePost"));
+const CreatePost = lazy(() => import("../components/dashboard/PostEditor"));
 const Chat = lazy(() => import("../components/dashboard/Chat"));
 
 export default function Dashboard() {
@@ -80,7 +80,7 @@ export default function Dashboard() {
 
         {/* Main content area */}
         <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 lg:p-6">
-          <Suspense fallback={<Loader />}>
+          <Suspense fallback={<OverlayLoader />}>
             <Routes>
               <Route path="/" element={<DashboardOverview />} />
               <Route path="/posts" element={<BlogManagement />} />
