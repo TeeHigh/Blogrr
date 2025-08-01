@@ -44,7 +44,7 @@ export default function Header() {
                 </Link>
                 <Link
                   to="/register"
-                  className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-light transition-colors"
+                  className="flex items-center gap-2 bg-primary text-white px-2 md:px-4 py-2 rounded-lg font-normal md:font-medium hover:bg-primary-light transition-colors"
                 >
                   <LogIn className="h-4 w-4" />
                   Get Started

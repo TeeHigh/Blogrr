@@ -60,31 +60,42 @@ export default function PostEditor({
   const { user } = useAuth();
 
   useEffect(() => {
-    if (mode !== "edit" || !id || isFetchingPost) return;
+    if (mode === "edit") {
+      if (!id || isFetchingPost) return;
 
-    if (!editingBlog) {
-      toast.error("No post found for editing");
-      setTimeout(() => navigate("/dashboard/posts"), 0);
-      return;
+      if (!editingBlog) {
+        toast.error("No post found for editing");
+        setTimeout(() => navigate("/dashboard/posts"), 0);
+        return;
+      }
+
+      const cleanTags = editingBlog.tags || [];
+
+      setOriginalData({
+        title: editingBlog.title,
+        content: editingBlog.content,
+        excerpt: editingBlog.excerpt || "",
+        tags: cleanTags,
+        coverImage: editingBlog.coverImage || "",
+        status: editingBlog.status || "draft",
+      });
+
+      setTitle(editingBlog.title);
+      setContent(editingBlog.content);
+      setExcerpt(editingBlog.excerpt || "");
+      setTags(cleanTags);
+      setCoverImage(editingBlog.coverImage || "");
+      setStatus(editingBlog.status || "draft");
+    } else {
+      // Reset form for create mode
+      setOriginalData(null);
+      setTitle("");
+      setContent("");
+      setExcerpt("");
+      setTags([]);
+      setCoverImage("");
+      setStatus("draft");
     }
-
-    const cleanTags = editingBlog.tags || [];
-
-    setOriginalData({
-      title: editingBlog.title,
-      content: editingBlog.content,
-      excerpt: editingBlog.excerpt || "",
-      tags: cleanTags,
-      coverImage: editingBlog.coverImage || "",
-      status: editingBlog.status || "draft",
-    });
-
-    setTitle(editingBlog.title);
-    setContent(editingBlog.content);
-    setExcerpt(editingBlog.excerpt || "");
-    setTags(cleanTags);
-    setCoverImage(editingBlog.coverImage || "");
-    setStatus(editingBlog.status || "draft");
   }, [mode, id, editingBlog, isFetchingPost, navigate]);
 
   const hasChanged =
@@ -219,7 +230,7 @@ export default function PostEditor({
           <p className="text-gray-600">Write and publish your blog post</p>
         </div>
       </div>
-      {isFetchingPost && <OverlayLoader />}
+      {mode === "edit" && isFetchingPost && <OverlayLoader />}
       <form onSubmit={submitForm} className="space-y-6">
         <div className="bg-white rounded-lg shadow-sm border p-6 space-y-6">
           {/* Title */}

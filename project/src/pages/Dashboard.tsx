@@ -15,7 +15,7 @@ const DashboardOverview = lazy(
 const BlogManagement = lazy(
   () => import("../components/dashboard/BlogManagement")
 );
-const CreatePost = lazy(() => import("../components/dashboard/PostEditor"));
+const PostEditor = lazy(() => import("../components/dashboard/PostEditor"));
 const Chat = lazy(() => import("../components/dashboard/Chat"));
 
 export default function Dashboard() {
@@ -84,8 +84,8 @@ export default function Dashboard() {
             <Routes>
               <Route path="/" element={<DashboardOverview />} />
               <Route path="/posts" element={<BlogManagement />} />
-              <Route path="/edit/:id" element={<CreatePost mode="edit" />} />
-              <Route path="/create" element={<CreatePost />} />
+              <Route path="/edit/:id" element={<PostEditor mode="edit" />} />
+              <Route path="/create" element={<PostEditor />} />
               <Route path="/chat" element={<Chat />} />
             </Routes>
           </Suspense>
