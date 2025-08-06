@@ -4,9 +4,9 @@ import Sidebar from "../components/dashboard/Sidebar";
 import { Menu } from "lucide-react";;
 import { useAuth } from "../contexts/AuthContext";
 import toast from "react-hot-toast";
-import { fetchUser } from "../services/fetchDashboardData";
 import { useBlogContext } from "../contexts/BlogContext";
 import OverlayLoader from "../components/OverlayLoader";
+import useUser from "../hooks/blogHooks/useUser";
 
 // Lazy-loaded components
 const DashboardOverview = lazy(
@@ -17,19 +17,30 @@ const BlogManagement = lazy(
 );
 const PostEditor = lazy(() => import("../components/dashboard/PostEditor"));
 const Chat = lazy(() => import("../components/dashboard/Chat"));
+const Settings = lazy(() => import("../components/dashboard/Settings"));
 
 export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
   
   const { setUser, setIsAuthenticated } = useAuth();
-  const {setAuthorPosts} = useBlogContext();
+  const { setAuthorPosts} = useBlogContext();
+
+  const { data: userData, isPending: isFetchingDashData } = useUser();
+
 
   // Fetch user data on mount
   useEffect(() => {
     const init = async () => {
+      if (isFetchingDashData) return;
+
+      if (!userData) {
+        toast.error("Session expired. Please log in again.");
+        navigate("/login");
+        return;
+      }
       try {
-        const data = await fetchUser();
+        const data = userData;;
         console.log(data);
         setUser(data.author);
         setIsAuthenticated(true);
@@ -41,8 +52,8 @@ export default function Dashboard() {
     };
 
     init();
-  }, [navigate]);
-// navigate, setUser, setIsAuthenticated
+  }, [userData, isFetchingDashData]);
+
 
   return (
     <div className="h-screen bg-gray-50 flex overflow-hidden">
@@ -87,6 +98,7 @@ export default function Dashboard() {
               <Route path="/edit/:id" element={<PostEditor mode="edit" />} />
               <Route path="/create" element={<PostEditor />} />
               <Route path="/chat" element={<Chat />} />
+              <Route path="/settings" element={<Settings />} />
             </Routes>
           </Suspense>
         </main>

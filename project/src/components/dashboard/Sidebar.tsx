@@ -98,7 +98,10 @@ export default function Sidebar({ onClose }: SidebarProps) {
 
       {/* Footer */}
       <div className="p-4 border-t border-gray-200">
-        <button className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 w-full transition-colors mb-2">
+        <button 
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 w-full transition-colors mb-2"
+          onClick={() => navigate('/dashboard/settings')}
+        >
           <Settings className="h-5 w-5" />
           Settings
         </button>

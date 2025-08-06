@@ -1,3 +1,5 @@
+import { LucideIcon } from "lucide-react";
+
 export interface APIError {
   detail: string;
 }
@@ -59,6 +61,13 @@ export interface LoginResponse {
   refresh: string;
 }
 
+export interface DashboardResponse{
+  author: User;
+  blogs: BlogPost[];
+  // comments: Comment[];
+  // likes: Like[];
+}
+
 export interface AddPostFormData {
   title: string;
   content: string;
@@ -84,4 +93,11 @@ export interface BlogPost {
   readTime: number;
   status: "draft" | "published";
   coverImage?: string;
+}
+
+export interface DashboardStat {
+  name: string;
+  value: string;
+  icon: LucideIcon | any;
+  color: string;
 }

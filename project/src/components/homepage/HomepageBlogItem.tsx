@@ -56,10 +56,10 @@ function HomepageBlogItem({ post }: HomepageBlogItemProps) {
             />
             <div className="text-sm">
               <p className="font-medium text-gray-900">{post.author}</p>
-              <div className="flex items-center gap-2 text-gray-500">
+              <div className="flex items-center gap-2 text-gray-500 flex-wrap">
                 <Calendar className="h-3 w-3" />
                 {post.published_at && (
-                  <span>
+                  <span className="whitespace-nowrap">
                     {new Date(post.published_at).toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: 'long',
@@ -67,8 +67,10 @@ function HomepageBlogItem({ post }: HomepageBlogItemProps) {
                     })}
                   </span>
                 )}
-                <Clock className="h-3 w-3 ml-2" />
-                <span>{post.readTime} min read</span>
+                <div className="flex items-center gap-1">
+                  <Clock className="h-3 w-3 ml-2" />
+                  <span>{post.readTime} min read</span>
+                </div>
               </div>
             </div>
           </div>

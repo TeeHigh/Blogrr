@@ -78,7 +78,7 @@ export default function Chat() {
 
     const message: Message = {
       id: Date.now().toString(),
-      sender: user.name,
+      sender: user.fullname,
       senderAvatar: user.avatar || '',
       content: newMessage.trim(),
       timestamp: new Date(),
@@ -153,7 +153,7 @@ export default function Chat() {
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {messages.map((message) => (
             <div key={message.id} className={`flex gap-3 ${
-              message.sender === user?.name ? 'flex-row-reverse' : ''
+              message.sender === user?.fullname ? 'flex-row-reverse' : ''
             }`}>
               <img
                 src={message.senderAvatar}
@@ -161,14 +161,14 @@ export default function Chat() {
                 className="w-8 h-8 rounded-full object-cover flex-shrink-0"
               />
               <div className={`flex flex-col max-w-xs lg:max-w-md ${
-                message.sender === user?.name ? 'items-end' : 'items-start'
+                message.sender === user?.fullname ? 'items-end' : 'items-start'
               }`}>
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-xs font-medium text-gray-700">{message.sender}</span>
                   <span className="text-xs text-gray-500">{formatTime(message.timestamp)}</span>
                 </div>
                 <div className={`rounded-lg px-4 py-2 ${
-                  message.sender === user?.name
+                  message.sender === user?.fullname
                     ? 'bg-blue-600 text-white'
                     : 'bg-gray-100 text-gray-900'
                 }`}>

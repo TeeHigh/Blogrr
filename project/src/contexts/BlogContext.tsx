@@ -14,7 +14,8 @@ import {
 } from "../services/blogService";
 import { createContext, useContext, useState } from "react";
 import toast from "react-hot-toast";
-import { BlogPost } from "../types/types";
+import { BlogPost, DashboardResponse, User } from "../types/types";
+import { fetchUser } from "../services/fetchDashboardData";
 // import useCreateBlog from "../hooks/blogHooks/useCreateBlog";
 
 type BlogContextType = {
@@ -22,6 +23,7 @@ type BlogContextType = {
   setAuthorPosts: React.Dispatch<React.SetStateAction<BlogPost[]>>;
   editingBlog: BlogPost | null;
   setEditingBlog: React.Dispatch<React.SetStateAction<BlogPost | null>>;
+  useUser: () => ReturnType<typeof useQuery<DashboardResponse>>;
   useBlogs: () => ReturnType<typeof useQuery<BlogPost[]>>;
   usePublishedBlogs: () => ReturnType<typeof useQuery<BlogPost[]>>;
   useSingleBlog: (id: string) => ReturnType<typeof useQuery<BlogPost>>;
@@ -48,6 +50,13 @@ export const BlogProvider = ({ children }: { children: React.ReactNode }) => {
   const [ editingBlog, setEditingBlog] = useState<BlogPost | null>(null);
 
   // Queries
+  const useUser = () => useQuery<DashboardResponse>({
+    queryKey: ["user"],
+    queryFn: fetchUser,
+    staleTime: 5 * 60 * 1000,
+    retry: 1,
+  });
+
   const useBlogs = () =>
     useQuery<BlogPost[]>({
       queryKey: ["blogs"],
@@ -65,7 +74,7 @@ export const BlogProvider = ({ children }: { children: React.ReactNode }) => {
       queryKey: ["blogs", id],
       queryFn: () => getBlogByIdApi(id),
       enabled: !!id, // prevent calling if id is empty
-      staleTime: 5 * 60 * 1000,
+      staleTime: 3 * 60 * 1000,
     });
 
   // Mutations
@@ -79,7 +88,7 @@ export const BlogProvider = ({ children }: { children: React.ReactNode }) => {
         });
       },
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["blogs"] });
+        queryClient.invalidateQueries({ queryKey: ["blogs", "user", "publishedBlogs"] });
       },
       onError: (err) => console.error("Failed to create blog", err),
     });
@@ -94,7 +103,7 @@ export const BlogProvider = ({ children }: { children: React.ReactNode }) => {
         });
       },
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["blogs"] });
+        queryClient.invalidateQueries({ queryKey: ["blogs", "user", "publishedBlogs"] });
       },
       onError: (err) => console.error("Failed to update blog", err),
     });
@@ -110,7 +119,7 @@ export const BlogProvider = ({ children }: { children: React.ReactNode }) => {
         });
       },
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["blogs"] });
+        queryClient.invalidateQueries({ queryKey: ["blogs", "user", "publishedBlogs"] });
       },
       onError: (err) => console.error(err),
     });
@@ -122,6 +131,7 @@ export const BlogProvider = ({ children }: { children: React.ReactNode }) => {
         setAuthorPosts,
         editingBlog,
         setEditingBlog,
+        useUser,
         useBlogs,
         usePublishedBlogs,
         useSingleBlog,

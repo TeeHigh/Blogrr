@@ -1,6 +1,5 @@
 import api from "../api";
 
-
 export const fetchUser = async () => {
   const access = localStorage.getItem("access_token");
 

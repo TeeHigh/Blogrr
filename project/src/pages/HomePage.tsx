@@ -1,6 +1,3 @@
-import { Link } from 'react-router-dom';
-import { Calendar, Clock, ArrowRight } from 'lucide-react';
-import { useBlogContext } from '../contexts/BlogContext';
 import Header from '../components/Header';
 import Hero from '../components/homepage/Hero';
 import useGetPublishedBlogs from '../hooks/blogHooks/useGetPublishedBlogs';
@@ -27,7 +24,7 @@ if (isFetchingBlogs) {
         <h2 className="text-3xl font-bold text-gray-900 mb-8">Latest Articles</h2>
         
         <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
-          {publishedPosts ? 
+          {publishedPosts.length > 0 ? 
             publishedPosts.map((post: BlogPost) => (
               <HomepageBlogItem key={post.id} post={post} />
             )) : 

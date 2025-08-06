@@ -1,10 +1,18 @@
-import React, { Suspense, useEffect } from 'react';
+import React, { Suspense, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
 } from "react-router-dom";
+import "@mantine/core/styles.css";
+import "@blocknote/core/fonts/inter.css";
+import "@blocknote/mantine/style.css";
+
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { MantineProvider } from "@mantine/core";
+
 const HomePage = React.lazy(() => import("./pages/HomePage"));
 const BlogPost = React.lazy(() => import("./pages/BlogPost"));
 const Login = React.lazy(() => import("./pages/Login"));
@@ -15,10 +23,8 @@ const Dashboard = React.lazy(() => import("./pages/Dashboard"));
 
 import AuthProvider, { useAuth } from "./contexts/AuthContext";
 import { BlogProvider } from "./contexts/BlogContext";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "react-hot-toast";
-import Loader from './components/Loader';
-import isTokenExpired from './hooks/useIsTokenValid';
+import OverlayLoader from "./components/OverlayLoader";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -29,24 +35,24 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 function AppRouter() {
   return (
     <Router>
-      <Suspense fallback={<Loader />}>
+      <Suspense fallback={<OverlayLoader />}>
         <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/blog/:id" element={<BlogPost />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/verify-email" element={<EmailVerification />} />
-        <Route path="/onboarding" element={<Onboarding />} />
-        <Route
-          path="/dashboard/*"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/blog/:id" element={<BlogPost />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/verify-email" element={<EmailVerification />} />
+          <Route path="/onboarding" element={<Onboarding />} />
+          <Route
+            path="/dashboard/*"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </Suspense>
     </Router>
   );
@@ -55,23 +61,26 @@ function AppRouter() {
 const queryClient = new QueryClient();
 
 function App() {
-//   useEffect(() => {
-//   const token = localStorage.getItem("access_token");
-//   if (!token || isTokenExpired(token)) {
-//     localStorage.removeItem("access_token");
-//     localStorage.removeItem("refresh_token");
-//     window.location.href = "/login"; // or use navigate("/login")
-//   }
-// }, []);
+  //   useEffect(() => {
+  //   const token = localStorage.getItem("access_token");
+  //   if (!token || isTokenExpired(token)) {
+  //     localStorage.removeItem("access_token");
+  //     localStorage.removeItem("refresh_token");
+  //     window.location.href = "/login"; // or use navigate("/login")
+  //   }
+  // }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <BlogProvider>
-          <Toaster position="top-center" />
-          <AppRouter />
-        </BlogProvider>
-      </AuthProvider>
+      <MantineProvider>
+        <AuthProvider>
+          <BlogProvider>
+            <Toaster position="top-center" />
+            <AppRouter />
+          </BlogProvider>
+        </AuthProvider>
+        <ReactQueryDevtools initialIsOpen={true} />
+      </MantineProvider>
     </QueryClientProvider>
   );
 }

@@ -1,30 +1,30 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import {
-  Plus,
-  Search,
-  Filter,
-  MoreVertical,
-  Edit,
-  Trash2,
-  Eye,
-} from "lucide-react";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { Plus, Search, Filter } from "lucide-react";
 import { useBlogContext } from "../../contexts/BlogContext";
-import { useAuth } from "../../contexts/AuthContext";
+import PostList from "./blog-management/PostList";
+import useUser from "../../hooks/blogHooks/useUser";
+import OverlayLoader from "../OverlayLoader";
+import { BlogPost } from "../../types/types";
 
 export default function BlogManagement() {
-  const { authorPosts: userPosts, useDeleteBlog, setEditingBlog } = useBlogContext();
+  const {
+    useDeleteBlog,
+    setEditingBlog,
+  } = useBlogContext();
   const { mutate: deletePost } = useDeleteBlog();
-  const { user } = useAuth();
+
+  const { data: userData = [], isPending: isFetchingDashData } = useUser();
+  if (isFetchingDashData) return <OverlayLoader />;
+
+  const userPosts = userData?.blogs || [];
+
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<
     "all" | "published" | "draft"
   >("all");
-  const navigate = useNavigate();
 
-  // const userPosts = posts.filter((post) => post.author === user?.name);
-
-  const filteredPosts = userPosts.filter((post) => {
+  const filteredPosts = userPosts.filter((post: BlogPost) => {
     const matchesSearch =
       post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       post.content.toLowerCase().includes(searchTerm.toLowerCase());
@@ -75,7 +75,7 @@ export default function BlogManagement() {
               onChange={(e) =>
                 setFilterStatus(e.target.value as "all" | "published" | "draft")
               }
-              className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="border border-gray-300 rounded-lg px-2 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="all">All Posts</option>
               <option value="published">Published</option>
@@ -89,78 +89,13 @@ export default function BlogManagement() {
       <div className="bg-white rounded-lg shadow-sm border">
         {filteredPosts.length > 0 ? (
           <div className="divide-y divide-gray-200">
-            {filteredPosts.map((post) => (
-              <div
+            {filteredPosts.map((post: BlogPost) => (
+              <PostList
                 key={post.id}
-                className="p-6 hover:bg-gray-50 transition-colors"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        {post.title}
-                      </h3>
-                      <span
-                        className={`px-2 py-1 text-xs font-medium rounded-full ${
-                          post.status === "published"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-yellow-100 text-yellow-700"
-                        }`}
-                      >
-                        {post.status}
-                      </span>
-                    </div>
-                    <p className="text-gray-600 mb-3 line-clamp-2">
-                      {post.excerpt}
-                    </p>
-                    <div className="flex items-center gap-4 text-sm text-gray-500">
-                      <span>
-                        Published:{" "}
-                        {post.created_at && new Date(post.created_at).toLocaleDateString()}
-                      </span>
-                      <span>{post.readTime} min read</span>
-                      <div className="flex items-center gap-1">
-                        {post.tags.slice(0, 2).map((tag) => (
-                          <span
-                            key={tag}
-                            className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 ml-4">
-                    {post.status === "published" && (
-                      <Link
-                        to={`/blog/${post.id}`}
-                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                        title="View post"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Link>
-                    )}
-                    <button
-                      className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                      title="Edit post"
-                      onClick={() => {
-                        setEditingBlog(post);
-                        navigate(`/dashboard/edit/${post.id}`);
-                      }}                      
-                    >
-                      <Edit className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(post.id)}
-                      className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                      title="Delete post"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-              </div>
+                post={post}
+                handleDelete={handleDelete}
+                setEditingBlog={setEditingBlog}
+              />
             ))}
           </div>
         ) : (

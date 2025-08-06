@@ -5,7 +5,6 @@ import { RegisterFormData } from "../types/types";
 export const loginApi = async (email: string, password: string) => {
   try {
     const res = await api.post("/api/token/", { email, password });
-    console.log("Login response:", res.data);
     return res.data;
   } catch (err) {
     

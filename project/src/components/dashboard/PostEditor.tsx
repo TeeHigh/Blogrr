@@ -18,8 +18,10 @@ import {
   deleteFromCloudinary,
   uploadToCloudinary,
 } from "../../utils/uploadToCloudinary";
-import { DotLoader } from "../DotLoader";
 import OverlayLoader from "../OverlayLoader";
+import { BlogPost } from "../../types/types";
+import useCreateBlog from "../../hooks/blogHooks/useCreateBlog";
+import useSingleBlog from "../../hooks/blogHooks/useSingleBlog";
 
 export default function PostEditor({
   mode = "create",
@@ -47,11 +49,11 @@ export default function PostEditor({
     control,
   } = useForm();
 
-  const { useSingleBlog, useCreateBlog, useUpdateBlog } = useBlogContext();
+  const { useUpdateBlog } = useBlogContext();
   const { id } = useParams();
 
   const { mutate: updateBlog } = useUpdateBlog();
-  const { mutate: addPost } = useCreateBlog();
+  const {  addPost } = useCreateBlog();
 
   const { data: editingBlog, isPending: isFetchingPost } = useSingleBlog(
     id ?? ""
@@ -155,7 +157,7 @@ export default function PostEditor({
 
   const handleRemoveCoverImage = async () => {
     try {
-      await deleteFromCloudinary(coverImagePublicID);
+      if (coverImagePublicID) await deleteFromCloudinary(coverImagePublicID);
       setCoverImage("");
       setCoverImagePublicID("");
       toast.success("Cover image removed");
@@ -184,13 +186,32 @@ export default function PostEditor({
       tags,
       readTime: calculateReadTime(content),
       status,
-      coverImage: coverImage.trim() || undefined,
+      coverImage: coverImage.trim() || "",
       published_at: status === "published" ? new Date().toISOString() : null,
       ...(mode === "create"
         ? { created_at: new Date().toISOString() }
         : { updated_at: new Date().toISOString() }),
     };
-    console.log(post);
+
+    const updatedFields: Partial<BlogPost> = {};
+
+    if (mode === "edit") {
+      if (title !== originalData.title) updatedFields.title = title.trim();
+      if (content !== originalData.content)
+        updatedFields.content = content.trim();
+      if (excerpt !== originalData.excerpt)
+        updatedFields.excerpt = excerpt.trim();
+      if (coverImage !== originalData.coverImage)
+        updatedFields.coverImage = coverImage.trim();
+      if (status !== originalData.status) updatedFields.status = status;
+      if (JSON.stringify(tags) !== JSON.stringify(originalData.tags))
+        updatedFields.tags = tags;
+
+      updatedFields.updated_at = new Date().toISOString();
+      if(status === "published") {
+        updatedFields.published_at = new Date().toISOString();
+      }
+    }
 
     if (mode === "create") {
       try {
@@ -210,7 +231,7 @@ export default function PostEditor({
         return;
       }
       try {
-        updateBlog({ id, post });
+        updateBlog({ id, post: updatedFields });
         navigate("/dashboard/posts");
       } catch (error) {
         console.error("Failed to update post:", error);
@@ -277,6 +298,7 @@ export default function PostEditor({
                 <button
                   onClick={handleRemoveCoverImage}
                   className="w-full flex items-center justify-center gap-2 py-2 px-4 text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors"
+                  type="button"
                   disabled={uploadingCoverImage}
                 >
                   <X className="h-4 w-4" /> Remove Photo
@@ -319,7 +341,7 @@ export default function PostEditor({
                     toast.error("Invalid image URL");
                     setTimeout(() => {
                       setCoverImage("");
-                    }, 3000);
+                    }, 500);
                   }}
                 />
               </div>
@@ -418,8 +440,9 @@ export default function PostEditor({
         </div>
 
         {/* Actions */}
-        <div className="flex items-center justify-between bg-white rounded-lg shadow-sm border p-4">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row md:items-center sm:justify-between bg-white rounded-lg shadow-sm border p-4 gap-4 md:gap-0">
+          {/* Radio Status Options */}
+          <div className="flex my-2 gap-6 justify-center sm:justify-start sm:my-0 sm:gap-4">
             <label className="flex items-center gap-2">
               <input
                 type="radio"
@@ -448,10 +471,11 @@ export default function PostEditor({
             </label>
           </div>
 
-          <div className="flex items-center gap-3">
+          {/* Buttons */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <button
               type="button"
-              className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
             >
               <Eye className="h-4 w-4" />
               Preview
@@ -464,13 +488,15 @@ export default function PostEditor({
                 !content.trim() ||
                 (mode === "edit" && !hasChanged)
               }
-              className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Save className="h-4 w-4" />
               {saving
                 ? "Saving..."
                 : status === "published"
-                ? "Publish"
+                ? mode === "create"
+                  ? "Publish"
+                  : "Update"
                 : "Save Draft"}
             </button>
           </div>

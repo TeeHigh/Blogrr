@@ -7,18 +7,20 @@ User = get_user_model()
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    def validate(self, attrs):
-        data = super().validate(attrs)
+    password = serializers.CharField(write_only=True, trim_whitespace=False)
 
-        # Add user data to the response
-        data['user'] = {
-            "id": self.user.id,
-            "email": self.user.email,
-            "username": self.user.username,
-            "fullname": self.user.get_full_name(),
-        }
+def validate(self, attrs):
+    data = super().validate(attrs)
 
-        return data
+    # Add user data to the response
+    data['user'] = {
+        "id": self.user.id,
+        "email": self.user.email,
+        "username": self.user.username,
+        "fullname": self.user.get_full_name(),
+    }
+
+    return data
 
 
 class UserSerializer(serializers.ModelSerializer):

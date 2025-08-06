@@ -65,7 +65,7 @@ export async function createBlogApi(data: Omit<BlogPost, "author_avatar" | "id">
 
 export async function updateBlogApi(id: string, data: Partial<BlogPost>) {
   try{
-    const response = await api.put(`/api/post/${id}/`, data);
+    const response = await api.patch(`/api/post/${id}/`, data);
     return response.data;
   }
   catch(err){
@@ -79,5 +79,18 @@ export async function updateBlogApi(id: string, data: Partial<BlogPost>) {
 }
 
 export async function deleteBlogApi(id: string){
-
+  try{
+    const response = await api.delete(`/api/post/${id}/`);
+    return response.data;
+  }
+  catch(err){
+    if(axios.isAxiosError(err)){
+      if (err.response?.data?.tags) {
+        throw new Error(err.response.data.tags.join(", "));
+      }
+      throw new Error("Failed to delete blog post");
+    }
+    console.error("Unexpected error:", err);
+    throw new Error("Unexpected error occurred");
+  }
 }
