@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import {
   Camera,
@@ -24,6 +24,8 @@ import {
   uploadToCloudinary,
 } from "../utils/uploadToCloudinary";
 import toast from "react-hot-toast";
+import AvatarUpload from "../components/AvatarUpload";
+import useAvatarUpload from "../hooks/useAvatarUpload";
 
 const GENRES = [
   "Technology",
@@ -78,10 +80,10 @@ export default function Onboarding() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  // const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
-  const [showAvatarOptions, setShowAvatarOptions] = useState(false);
+  const [showUploadOptions, setShowUploadOptions] = useState(false);
   const [usernameStatus, setUsernameStatus] = useState<string | null>(null);
   const [avatarPublicId, setAvatarPublicId] = useState<string>("");
 
@@ -106,6 +108,17 @@ export default function Onboarding() {
       console.error("Username check failed:", error);
     }
   };
+
+  const [debouncedUsername, setDebouncedUsername] = useState(profileData.username);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (debouncedUsername.trim()) {
+        checkUsernameAvailability(debouncedUsername);
+      }
+    }, 1000); // 1s after stop typing
+    return () => clearTimeout(handler);
+  }, [debouncedUsername]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -132,53 +145,14 @@ export default function Onboarding() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleAddAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const { avatar, uploadingAvatar, setUploadingAvatar } = useAvatarUpload();
 
-    const MAX_SIZE_MB = 2;
-    const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
-
-    if (file.size > MAX_SIZE_BYTES) {
-      toast.error(
-        `File is too large. Please upload an image under ${MAX_SIZE_MB}MB.`,
-        {
-          icon: <AlertCircleIcon className="text-orange-500" />,
-        }
-      );
-      return;
-    }
-
-    setUploadingAvatar(true);
-
-    try {
-      const { secureUrl } = await uploadToCloudinary(file);
-      setProfileData((prev) => ({
-        ...prev,
-        avatar: secureUrl,
-      }));
-      setAvatarPublicId(secureUrl);
-      setShowAvatarOptions(false);
-      toast.success("Image upload successful!");
-    } catch (err) {
-      toast.error("Upload failed");
-      console.error(err);
-    } finally {
-      setUploadingAvatar(false);
-    }
-  };
-
-  const handleRemoveAvatar = async () => {
-    try {
-      await deleteFromCloudinary(avatarPublicId);
-      setProfileData((prev) => ({ ...prev, avatar: "" }));
-      setShowAvatarOptions(false);
-      toast.success("Cover image removed");
-    } catch (error) {
-      console.error("Failed to remove avatar:", error);
-      toast.error("Failed to remove avatar");
-    }
-  };
+  useEffect(() => {
+    setProfileData((prev) => ({
+      ...prev,
+      avatar: avatar || prev.avatar,
+    }));
+  }, [avatar]);
 
   const handleInputChange = (field: string, value: string) => {
     setProfileData((prev) => ({ ...prev, [field]: value }));
@@ -243,7 +217,7 @@ export default function Onboarding() {
           !errors.length
         );
       case 2:
-        return true;
+        return !uploadingAvatar;
       case 3:
         return profileData.bio.trim().length > 0;
       case 4:
@@ -283,9 +257,8 @@ export default function Onboarding() {
                     onChange={(e) =>
                       handleInputChange("fullname", e.target.value)
                     }
-                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-secondary-light focus:border-transparent ${
-                      errors.name ? "border-red-300" : "border-gray-300"
-                    }`}
+                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-secondary-light focus:border-transparent ${errors.name ? "border-red-300" : "border-gray-300"
+                      }`}
                     placeholder="Enter your full name"
                   />
                 </div>
@@ -302,35 +275,42 @@ export default function Onboarding() {
                 <input
                   type="text"
                   value={profileData.username.trim().toLowerCase()}
-                  onChange={(e) =>
+                  onChange={(e) => {
                     setProfileData((prev) => ({
                       ...prev,
                       username: e.target.value.toLowerCase(),
-                    }))
+                    }));
+                    setDebouncedUsername(e.target.value.toLowerCase());
                   }
-                  onBlur={() => {
+                  }
+                  onKeyUp={() => {
                     if (profileData.username.trim()) {
                       checkUsernameAvailability(profileData.username);
                     }
                   }}
-                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg ${
-                    usernameStatus === "taken"
+                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg ${profileData.username && usernameStatus === "taken"
                       ? " ring-2 ring-cancel"
                       : "focus:ring-2 focus:ring-secondary-light focus:border-transparent"
-                  }`}
+                    }`}
                   placeholder="johndoe123"
                 />
               </div>
-              {usernameStatus === "taken" && (
-                <InputMessage type="error">
-                  Username is already taken
-                </InputMessage>
-              )}
-              {usernameStatus === "available" && (
+              {
+                profileData.username && (usernameStatus === "taken" ? (
+                  <InputMessage type="error">
+                    Username is already taken
+                  </InputMessage>
+                ) : (
                 <InputMessage type="success">
                   Username is available
                 </InputMessage>
-              )}
+              ))
+              }
+              {/* {usernameStatus === "available" && (
+                <InputMessage type="success">
+                  Username is available
+                </InputMessage>
+              )} */}
 
               {/* Password */}
               <div>
@@ -349,9 +329,8 @@ export default function Onboarding() {
                     onChange={(e) =>
                       handleInputChange("password", e.target.value)
                     }
-                    className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-secondary-light focus:border-transparent ${
-                      errors.password ? "border-red-300" : "border-gray-300"
-                    }`}
+                    className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-secondary-light focus:border-transparent ${errors.password ? "border-red-300" : "border-gray-300"
+                      }`}
                     placeholder="Create a password"
                   />
                   <button
@@ -375,9 +354,8 @@ export default function Onboarding() {
                             passwordStrength(profileData.password)
                           )}`}
                           style={{
-                            width: `${
-                              (passwordStrength(profileData.password) / 4) * 100
-                            }%`,
+                            width: `${(passwordStrength(profileData.password) / 4) * 100
+                              }%`,
                           }}
                         />
                       </div>
@@ -411,11 +389,10 @@ export default function Onboarding() {
                     onChange={(e) =>
                       handleInputChange("confirmPassword", e.target.value)
                     }
-                    className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-secondary-light focus:border-transparent ${
-                      errors.confirmPassword
+                    className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-secondary-light focus:border-transparent ${errors.confirmPassword
                         ? "border-red-300"
                         : "border-gray-300"
-                    }`}
+                      }`}
                     placeholder="Confirm your password"
                   />
                   <button
@@ -460,78 +437,12 @@ export default function Onboarding() {
 
             <div className="space-y-6">
               <div className="flex justify-center">
-                <div className="relative">
-                  <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-                    {profileData.avatar ? (
-                      <img
-                        src={profileData.avatar}
-                        alt="Profile"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <User className="h-16 w-16 text-gray-400" />
-                    )}
-                  </div>
-                  <button
-                    onClick={() => setShowAvatarOptions(true)}
-                    className="absolute bottom-0 right-0 bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition-colors"
-                  >
-                    <Camera className="h-4 w-4" />
-                  </button>
-                </div>
+                <AvatarUpload
+                  initialAvatar={profileData.avatar}
+                  setShowUploadOptions={setShowUploadOptions}
+                  showUploadOptions={showUploadOptions}
+                />
               </div>
-
-              {showAvatarOptions && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                  <div className="bg-white rounded-xl p-6 max-w-md w-full">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        Upload Avatar
-                      </h3>
-                      <button
-                        onClick={() => setShowAvatarOptions(false)}
-                        className="text-gray-400 hover:text-gray-600"
-                      >
-                        <X className="h-5 w-5" />
-                      </button>
-                    </div>
-
-                    {/* buttons for upload and removal of avatar */}
-                    <div className="border-t pt-4">
-                      {/* Upload button */}
-                      <label
-                        htmlFor="avatar-upload"
-                        className="w-full flex items-center justify-center gap-2 py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer mb-3"
-                        aria-disabled={uploadingAvatar}
-                      >
-                        <Upload className="h-4 w-4" />{" "}
-                        {profileData.avatar
-                          ? "Change avatar"
-                          : "Upload image (max size 2MB)*"}
-                      </label>
-                      <input
-                        id="avatar-upload"
-                        type="file"
-                        accept="image/*"
-                        onChange={handleAddAvatar}
-                        className="hidden"
-                        disabled={uploadingAvatar}
-                      />
-
-                      {/* Remove Photo Button - only show if an avatar is set */}
-                      {profileData.avatar && (
-                        <button
-                          onClick={handleRemoveAvatar}
-                          className="w-full flex items-center justify-center gap-2 py-2 px-4 text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors"
-                          disabled={uploadingAvatar}
-                        >
-                          <X className="h-4 w-4" /> Remove Photo
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
 
               <p className="text-sm text-gray-500">
                 You can skip this step and add a photo later
@@ -608,11 +519,10 @@ export default function Onboarding() {
                   <button
                     key={genre}
                     onClick={() => handleGenreToggle(genre)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      profileData.genres.includes(genre)
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${profileData.genres.includes(genre)
                         ? "bg-blue-600 text-white"
                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
+                      }`}
                   >
                     {genre}
                   </button>

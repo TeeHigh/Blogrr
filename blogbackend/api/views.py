@@ -38,7 +38,7 @@ class AuthorDashboardView(generics.ListAPIView):
             "author": UserSerializer(user).data,
             "blogs": blog_data
         })
-    
+
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer

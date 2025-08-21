@@ -1,21 +1,19 @@
 import { BlogPost } from "../../../types/types";
 import { DotIcon, Edit, Eye, Trash2 } from "lucide-react";
-import { format, formatRelative } from "date-fns";
+import { format, formatDistanceToNow, formatRelative } from "date-fns";
 import { Link, useNavigate } from "react-router-dom";
 
 interface PostListProps {
   post: BlogPost;
   setEditingBlog: (post: BlogPost) => void;
-  handleDelete: (id: string) => void;
+  openDeleteModal: (id: string) => void;
 }
 
-function PostList({ post, setEditingBlog, handleDelete }: PostListProps) {
+function PostList({ post, setEditingBlog, openDeleteModal }: PostListProps) {
   const navigate = useNavigate();
 
   return (
-    <div
-      className="p-4 sm:p-6 hover:bg-gray-50 transition-colors border-b"
-    >
+    <div className="p-4 sm:p-6 hover:bg-gray-50 transition-colors border-b">
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         {/* Post Content */}
         <div className="flex-1">
@@ -52,18 +50,32 @@ function PostList({ post, setEditingBlog, handleDelete }: PostListProps) {
 
           <div className="flex flex-wrap items-center mt-6 gap-x-4 sm:gap-x-1 gap-y-2 text-sm text-gray-500">
             <span title="Date updated">
-              Last updated on{" "}
+              Last updated{" "}
               {post.updated_at
-                ? format(new Date(post.updated_at), "EEEE 'at' p")
-                : post.created_at &&
-                  format(new Date(post.created_at), "EEEE 'at' p")}
+                ? formatDistanceToNow(new Date(post.updated_at), {
+                    addSuffix: true,
+                  })
+                : post.created_at
+                ? formatDistanceToNow(new Date(post.created_at), {
+                    addSuffix: true,
+                  })
+                : "N/A"}
+              {/* {" "}(
+              {post.updated_at
+                ? format(new Date(post.updated_at), "MMM d, yyyy 'at' p")
+                : post.created_at
+                ? format(new Date(post.created_at), "MMM d, yyyy 'at' p")
+                : "N/A"}
+              ) */}
             </span>
 
             <DotIcon className="hidden sm:inline-block" />
 
             <span>{post.readTime} min read</span>
 
-            <DotIcon className={`hidden ${post.tags.length > 0 && "sm:inline-block"}`} />
+            <DotIcon
+              className={`hidden ${post.tags.length > 0 && "sm:inline-block"}`}
+            />
 
             <div className="flex gap-2 flex-wrap">
               {post.tags.slice(0, 2).map((tag) => (
@@ -100,7 +112,7 @@ function PostList({ post, setEditingBlog, handleDelete }: PostListProps) {
             <Edit className="h-4 w-4" />
           </button>
           <button
-            onClick={() => handleDelete(post.id)}
+            onClick={() => openDeleteModal(post.id)}
             className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
             title="Delete post"
           >

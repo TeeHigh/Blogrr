@@ -4,7 +4,6 @@ import { Mail, ArrowLeft, RefreshCw } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 // import { verifyEmailOtp } from "../services/authService";
 import useSendOtp from "../hooks/authHooks/useSendOtp";
-import useCheckEmailAvailability from "../hooks/authHooks/useCheckEmailAvailability";
 import useVerifyOtp from "../hooks/authHooks/useVerifyOtp";
 
 export default function EmailVerification() {
@@ -29,6 +28,10 @@ export default function EmailVerification() {
       return () => clearTimeout(timer);
     }
   }, [resendCooldown]);
+
+  useEffect(()=>{
+    document.getElementById("code-0")?.focus();
+  }, [])
 
 
   if (user || !emailAvailable  || !emailToVerify) {
@@ -85,6 +88,7 @@ export default function EmailVerification() {
 
     try {
       await verifyOtp({email: emailToVerify, otp: codeToVerify});
+      setLoading(isSendingOtp);
     
     } catch (err) {
       setError("Invalid verification code. Please try again.");
@@ -147,6 +151,7 @@ export default function EmailVerification() {
                     onKeyDown={(e) => handleKeyDown(index, e)}
                     className="w-12 h-12 text-center text-xl font-bold border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     disabled={loading}
+                    autoFocus={true}
                   />
                 ))}
               </div>

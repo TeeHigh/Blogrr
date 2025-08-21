@@ -24,7 +24,7 @@ const useRegister = () => {
   data,
 } = useMutation<RegisterResponse, AxiosError, RegisterFormData>({
   mutationFn: async (formData) => await toast.promise(registerApi(formData),{
-    loading: 'Siging up...',
+    loading: 'Signing up...',
     success: "Sign up successful!",
     error: "Sign up failed!"
   }),

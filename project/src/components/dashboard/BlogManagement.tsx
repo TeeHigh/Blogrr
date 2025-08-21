@@ -7,6 +7,9 @@ import useUser from "../../hooks/blogHooks/useUser";
 import OverlayLoader from "../OverlayLoader";
 import { BlogPost } from "../../types/types";
 
+import { modals } from '@mantine/modals';
+import { Text } from "@mantine/core";
+
 export default function BlogManagement() {
   const {
     useDeleteBlog,
@@ -33,11 +36,21 @@ export default function BlogManagement() {
     return matchesSearch && matchesFilter;
   });
 
-  const handleDelete = (id: string) => {
-    if (confirm("Are you sure you want to delete this post?")) {
-      deletePost(id);
-    }
-  };
+  const openDeleteModal = (id: string) => {
+    modals.openConfirmModal({
+      title: 'Delete blog post',
+      centered: true,
+      children: (
+        <Text size="sm">
+          Are you sure you want to delete this post? This action is destructive and cannot be undone.
+        </Text>
+      ),
+      labels: { confirm: 'Delete post', cancel: "No don't delete it" },
+      confirmProps: { color: 'red' },
+      onCancel: () => console.log('Cancel'),
+      onConfirm: () => deletePost(id),
+    })
+  }
 
   return (
     <div className="space-y-6">
@@ -93,7 +106,7 @@ export default function BlogManagement() {
               <PostList
                 key={post.id}
                 post={post}
-                handleDelete={handleDelete}
+                openDeleteModal={openDeleteModal}
                 setEditingBlog={setEditingBlog}
               />
             ))}

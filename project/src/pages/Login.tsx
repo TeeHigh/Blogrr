@@ -68,6 +68,7 @@ export default function Login() {
                 <input
                   id="email"
                   type="email"
+                  disabled={isPending}
                   value={formData.email}
                   onChange={handleChange}
                   name="email"
@@ -89,6 +90,7 @@ export default function Login() {
                 <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                 <input
                   id="password"
+                  disabled={isPending}
                   type={showPassword ? "text" : "password"}
                   value={formData.password}
                   name="password"
@@ -111,6 +113,7 @@ export default function Login() {
               </div>
               <button
                 type="button"
+                disabled={isPending}
                 className="hover:underline text-primary-light hover:text-primary text-[0.75rem]"
               >
                 Forgot password?

@@ -30,6 +30,7 @@ if (isFetchingBlogs) {
             )) : 
             <div className="text-center text-gray-500">
               No posts available at the moment.
+              
             </div>
             }
         </div>

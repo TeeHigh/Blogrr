@@ -25,7 +25,6 @@ import useCreateBlog from "../../hooks/blogHooks/useCreateBlog";
 import useSingleBlog from "../../hooks/blogHooks/useSingleBlog";
 
 import OverlayLoader from "../OverlayLoader";
-import Tiptap from "./editor-components/Tiptap";
 
 export default function PostEditor({
   mode = "create",
@@ -430,7 +429,7 @@ export default function PostEditor({
             >
               Content*
             </label>
-            {/* <textarea
+            <textarea
               id="content"
               value={content}
               onChange={(e) => setContent(e.target.value)}
@@ -438,8 +437,8 @@ export default function PostEditor({
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
               placeholder="Write your post content here... (Supports Markdown)"
               required
-            /> */}
-            <Tiptap content={content} setContent={setContent} />
+            />
+            {/* <SimpleEditor /> */}
             <p className="text-sm text-gray-500 mt-2">
               Estimated read time: {calculateReadTime(content)} minutes
             </p>

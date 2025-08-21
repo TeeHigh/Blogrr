@@ -16,6 +16,7 @@ import { createContext, useContext, useState } from "react";
 import toast from "react-hot-toast";
 import { BlogPost, DashboardResponse, User } from "../types/types";
 import { fetchUser } from "../services/fetchDashboardData";
+import { queryKeys } from "../constants/queryKeys";
 // import useCreateBlog from "../hooks/blogHooks/useCreateBlog";
 
 type BlogContextType = {
@@ -47,15 +48,16 @@ const BlogContext = createContext<BlogContextType | undefined>(undefined);
 export const BlogProvider = ({ children }: { children: React.ReactNode }) => {
   const queryClient = useQueryClient();
   const [authorPosts, setAuthorPosts] = useState<BlogPost[]>([]);
-  const [ editingBlog, setEditingBlog] = useState<BlogPost | null>(null);
+  const [editingBlog, setEditingBlog] = useState<BlogPost | null>(null);
 
   // Queries
-  const useUser = () => useQuery<DashboardResponse>({
-    queryKey: ["user"],
-    queryFn: fetchUser,
-    staleTime: 5 * 60 * 1000,
-    retry: 1,
-  });
+  const useUser = () =>
+    useQuery<DashboardResponse>({
+      queryKey: ["user"],
+      queryFn: fetchUser,
+      staleTime: 5 * 60 * 1000,
+      retry: 1,
+    });
 
   const useBlogs = () =>
     useQuery<BlogPost[]>({
@@ -88,7 +90,9 @@ export const BlogProvider = ({ children }: { children: React.ReactNode }) => {
         });
       },
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["blogs", "user", "publishedBlogs"] });
+        queryClient.invalidateQueries({
+          queryKey: ["blogs", "user", "publishedBlogs"],
+        });
       },
       onError: (err) => console.error("Failed to create blog", err),
     });
@@ -103,7 +107,9 @@ export const BlogProvider = ({ children }: { children: React.ReactNode }) => {
         });
       },
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["blogs", "user", "publishedBlogs"] });
+        queryClient.invalidateQueries({
+          queryKey: ["blogs", "user", "publishedBlogs"],
+        });
       },
       onError: (err) => console.error("Failed to update blog", err),
     });
@@ -119,7 +125,18 @@ export const BlogProvider = ({ children }: { children: React.ReactNode }) => {
         });
       },
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["blogs", "user", "publishedBlogs"] });
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.user,
+          refetchType: "active",
+        });
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.blogs,
+          refetchType: "active",
+        });
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.publishedBlogs,
+          refetchType: "active",
+        });
       },
       onError: (err) => console.error(err),
     });

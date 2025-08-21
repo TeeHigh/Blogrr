@@ -21,7 +21,6 @@ export default function useVerifyOtp() {
 
     onSuccess: () => {
       setEmailVerified(true);
-
       navigate("/onboarding");
     },
 

@@ -1,6 +1,7 @@
 
 
 export async function uploadToCloudinary(file: File): Promise<{ secureUrl: string; publicId: string }> {
+  console.log(file);
   const formData = new FormData();
   formData.append("file", file);
   formData.append("upload_preset", "unsigned_preset");
@@ -43,3 +44,4 @@ export async function deleteFromCloudinary(publicId: string): Promise<void> {
     throw new Error("Failed to delete image: " + data.message);
   }
 }
+

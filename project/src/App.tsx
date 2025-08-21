@@ -25,6 +25,7 @@ import AuthProvider, { useAuth } from "./contexts/AuthContext";
 import { BlogProvider } from "./contexts/BlogContext";
 import { Toaster } from "react-hot-toast";
 import OverlayLoader from "./components/OverlayLoader";
+import { ModalsProvider } from "@mantine/modals";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -73,12 +74,14 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <MantineProvider>
-        <AuthProvider>
-          <BlogProvider>
-            <Toaster position="top-center" />
-            <AppRouter />
-          </BlogProvider>
-        </AuthProvider>
+        <ModalsProvider>
+          <AuthProvider>
+            <BlogProvider>
+              <Toaster position="top-center" />
+              <AppRouter />
+            </BlogProvider>
+          </AuthProvider>
+        </ModalsProvider>
         <ReactQueryDevtools initialIsOpen={true} />
       </MantineProvider>
     </QueryClientProvider>
