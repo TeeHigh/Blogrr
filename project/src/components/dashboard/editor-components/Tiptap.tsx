@@ -1,17 +1,11 @@
 // src/Tiptap.tsx
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import TextAlign from "@tiptap/extension-text-align";
 
-// Import the new extensions
-import Underline from "@tiptap/extension-underline";
-import Strike from "@tiptap/extension-strike";
-import Code from "@tiptap/extension-code";
-
 import Toolbar from "./Toolbar";
-// import { Placeholder } from "@tiptap/extension-placeholder";
+import { useEffect } from "react";
 
 type TiptapProps = {
   content?: string;
@@ -19,6 +13,7 @@ type TiptapProps = {
 }
 
 const Tiptap = ({content, setContent}: TiptapProps) => {
+  console.log(content);
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -50,14 +45,27 @@ const Tiptap = ({content, setContent}: TiptapProps) => {
         heading: {
           levels: [1, 2, 3, 4, 5, 6],
           HTMLAttributes: {
-            class: "font-bold",
+            class: "font-semibold my-2",
           },
         },
+        hardBreak: {
+          HTMLAttributes: {
+            class: "bg-slate"
+          }
+        },
+        link: {
+          HTMLAttributes: {
+            class: "underline"
+          }
+        },
+        
       }),
+      Image,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
     ],
     onUpdate: ({ editor }) => {
       console.log("Editor content updated:", editor);
+      console.log("Editor Text:", editor.getText());
       const content = editor.getHTML();
       setContent(content);
     },
@@ -67,8 +75,15 @@ const Tiptap = ({content, setContent}: TiptapProps) => {
           "prose prose-sm sm:prose lg:prose-lg xl:prose-xl dark:prose-invert focus:outline-none",
       },
     },
-    content: content ?? "",
   });
+
+  useEffect(() => {
+    if (editor && content) {
+      if (editor.getHTML() !== content) {
+        editor.commands.setContent(content);
+      }
+    }
+  }, [editor, content]);
 
   return (
     <div className="border rounded-lg overflow-hidden">

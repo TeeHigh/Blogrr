@@ -4,45 +4,49 @@ import {
   deleteFromCloudinary,
   uploadToCloudinary,
 } from "../utils/uploadToCloudinary";
-import { useAvatarContext } from "../contexts/AvatarContext";
+import { CloudinaryUploadResponse } from "../types/types";
 
-const useAvatarUpload = (initialAvatar: string = "") => {
-  const [avatar, setAvatar] = useState(initialAvatar);
+
+const useAvatarUpload = (initialAvatar: (string | File | null)[] = []) => {
+  const [avatar, setAvatar] = useState(initialAvatar?.[0]);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [avatarPublicId, setAvatarPublicId] = useState("");
 
   // const {avatar, setAvatar, uploading, setUploading} = useAvatarContext();
 
-  const handleAddAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    console.log(file);
+  const handleAddAvatar = async (file: File): Promise<CloudinaryUploadResponse> => {
+  if (!file) {
+    throw new Error("No file provided");
+  }
 
-    const MAX_SIZE_MB = 2;
-    const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
+  const MAX_SIZE_MB = 2;
+  const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
 
-    if (file.size > MAX_SIZE_BYTES) {
-      toast.error(
-        `File is too large. Please upload an image under ${MAX_SIZE_MB}MB.`
-      );
-      return;
-    }
+  if (file.size > MAX_SIZE_BYTES) {
+    toast.error(`File is too large. Please upload an image under ${MAX_SIZE_MB}MB.`);
+    throw new Error("File too large");
+  }
 
-    setUploadingAvatar(true);
-    const toastId = toast.loading("Uploading image...");
+  setUploadingAvatar(true);
+  const toastId = toast.loading("Uploading image...");
 
-    try {
-      const { secureUrl, publicId } = await uploadToCloudinary(file);
-      setAvatar(secureUrl);
-      setAvatarPublicId(publicId);
-      toast.success("Image upload successful!", { id: toastId });
-    } catch (err) {
-      toast.error("Upload failed", { id: toastId });
-      console.error(err);
-    } finally {
-      setUploadingAvatar(false);
-    }
-  };
+  try {
+    // Make sure uploadToCloudinary returns CloudinaryUploadResponse
+    const {secureUrl, publicId} = await uploadToCloudinary(file);
+
+    setAvatar(secureUrl);
+    setAvatarPublicId(publicId);
+
+    toast.success("Image upload successful!", { id: toastId });
+
+    return {secureUrl, publicId};
+  } catch (err) {
+    toast.error("Upload failed", { id: toastId });
+    console.error(err);
+    setUploadingAvatar(false);
+    throw err;
+  }
+};
 
   const handleRemoveAvatar = async () => {
     const toastId = toast.loading("Removing avatar...");

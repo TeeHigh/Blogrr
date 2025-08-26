@@ -61,6 +61,13 @@ export interface LoginResponse {
   refresh: string;
 }
 
+export type CloudinaryUploadResponse = {
+  secureUrl: string;
+  publicId: string;
+  url?: string;
+  [key: string]: any; // in case Cloudinary adds extras
+};
+
 export interface DashboardResponse{
   author: User;
   blogs: BlogPost[];

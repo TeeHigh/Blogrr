@@ -6,26 +6,19 @@ import {
   Heart,
   ArrowRight,
   ArrowLeft,
-  Upload,
-  X,
   EyeOff,
   Eye,
   Lock,
   CheckCircle,
   AlertCircle,
-  AlertCircleIcon,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import api from "../api";
 import useRegister from "../hooks/authHooks/useRegister";
 import { RegisterFormData } from "../types/types";
-import {
-  deleteFromCloudinary,
-  uploadToCloudinary,
-} from "../utils/uploadToCloudinary";
-import toast from "react-hot-toast";
 import AvatarUpload from "../components/AvatarUpload";
 import useAvatarUpload from "../hooks/useAvatarUpload";
+import useDebounce from "../hooks/useDebounce";
 
 const GENRES = [
   "Technology",
@@ -74,7 +67,7 @@ export default function Onboarding() {
     username: "",
     password: "",
     confirmPassword: "",
-    avatar: "",
+    avatar: null as File | null,
     bio: "",
     genres: [] as string[],
   });
@@ -85,7 +78,8 @@ export default function Onboarding() {
   const [loading, setLoading] = useState(false);
   const [showUploadOptions, setShowUploadOptions] = useState(false);
   const [usernameStatus, setUsernameStatus] = useState<string | null>(null);
-  const [avatarPublicId, setAvatarPublicId] = useState<string>("");
+
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
   const { user, emailToVerify, emailVerified } = useAuth();
   const { registerUser, isPending } = useRegister();
@@ -109,16 +103,13 @@ export default function Onboarding() {
     }
   };
 
-  const [debouncedUsername, setDebouncedUsername] = useState(profileData.username);
+  const debouncedUsername = useDebounce(profileData.username, 1000);
 
   useEffect(() => {
-    const handler = setTimeout(() => {
-      if (debouncedUsername.trim()) {
-        checkUsernameAvailability(debouncedUsername);
-      }
-    }, 1000); // 1s after stop typing
-    return () => clearTimeout(handler);
-  }, [debouncedUsername]);
+  if (debouncedUsername.length > 2 && debouncedUsername.trim()) {
+    checkUsernameAvailability(debouncedUsername);
+  }
+}, [debouncedUsername]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -145,14 +136,15 @@ export default function Onboarding() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const { avatar, uploadingAvatar, setUploadingAvatar } = useAvatarUpload();
+  const { avatar, uploadingAvatar, handleAddAvatar, setUploadingAvatar } =
+    useAvatarUpload();
 
-  useEffect(() => {
-    setProfileData((prev) => ({
-      ...prev,
-      avatar: avatar || prev.avatar,
-    }));
-  }, [avatar]);
+  // useEffect(() => {
+  //   setProfileData((prev) => ({
+  //     ...prev,
+  //     avatar: avatar || prev.avatar,
+  //   }));
+  // }, [avatar]);
 
   const handleInputChange = (field: string, value: string) => {
     setProfileData((prev) => ({ ...prev, [field]: value }));
@@ -194,18 +186,31 @@ export default function Onboarding() {
   };
 
   const handleComplete = async () => {
-    setLoading(true);
+  setLoading(true);
+
+  try {
+    const avatarToUpload = profileData.avatar
+      ? await handleAddAvatar(profileData.avatar)
+      : null;
 
     const { confirmPassword, ...filteredProfileData } = profileData;
 
     const formData: RegisterFormData = {
-      email: emailToVerify,
       ...filteredProfileData,
+      avatar: avatarToUpload?.secure_url, // ✅ now TS is happy
+      email: emailToVerify,
     };
 
-    registerUser(formData);
     console.log(formData);
-  };
+    // await registerUser(formData);
+  } catch (error) {
+    console.error("Error during complete:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 
   const canProceed = () => {
     switch (currentStep) {
@@ -257,8 +262,9 @@ export default function Onboarding() {
                     onChange={(e) =>
                       handleInputChange("fullname", e.target.value)
                     }
-                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-secondary-light focus:border-transparent ${errors.name ? "border-red-300" : "border-gray-300"
-                      }`}
+                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-secondary-light focus:border-transparent ${
+                      errors.name ? "border-red-300" : "border-gray-300"
+                    }`}
                     placeholder="Enter your full name"
                   />
                 </div>
@@ -280,32 +286,31 @@ export default function Onboarding() {
                       ...prev,
                       username: e.target.value.toLowerCase(),
                     }));
-                    setDebouncedUsername(e.target.value.toLowerCase());
-                  }
-                  }
+                    // setDebouncedUsername(e.target.value.toLowerCase());
+                  }}
                   onKeyUp={() => {
                     if (profileData.username.trim()) {
                       checkUsernameAvailability(profileData.username);
                     }
                   }}
-                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg ${profileData.username && usernameStatus === "taken"
+                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg ${
+                    profileData.username && usernameStatus === "taken"
                       ? " ring-2 ring-cancel"
                       : "focus:ring-2 focus:ring-secondary-light focus:border-transparent"
-                    }`}
+                  }`}
                   placeholder="johndoe123"
                 />
               </div>
-              {
-                profileData.username && (usernameStatus === "taken" ? (
+              {profileData.username &&
+                (usernameStatus === "taken" ? (
                   <InputMessage type="error">
                     Username is already taken
                   </InputMessage>
                 ) : (
-                <InputMessage type="success">
-                  Username is available
-                </InputMessage>
-              ))
-              }
+                  <InputMessage type="success">
+                    Username is available
+                  </InputMessage>
+                ))}
               {/* {usernameStatus === "available" && (
                 <InputMessage type="success">
                   Username is available
@@ -329,8 +334,9 @@ export default function Onboarding() {
                     onChange={(e) =>
                       handleInputChange("password", e.target.value)
                     }
-                    className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-secondary-light focus:border-transparent ${errors.password ? "border-red-300" : "border-gray-300"
-                      }`}
+                    className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-secondary-light focus:border-transparent ${
+                      errors.password ? "border-red-300" : "border-gray-300"
+                    }`}
                     placeholder="Create a password"
                   />
                   <button
@@ -354,8 +360,9 @@ export default function Onboarding() {
                             passwordStrength(profileData.password)
                           )}`}
                           style={{
-                            width: `${(passwordStrength(profileData.password) / 4) * 100
-                              }%`,
+                            width: `${
+                              (passwordStrength(profileData.password) / 4) * 100
+                            }%`,
                           }}
                         />
                       </div>
@@ -389,10 +396,11 @@ export default function Onboarding() {
                     onChange={(e) =>
                       handleInputChange("confirmPassword", e.target.value)
                     }
-                    className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-secondary-light focus:border-transparent ${errors.confirmPassword
+                    className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-secondary-light focus:border-transparent ${
+                      errors.confirmPassword
                         ? "border-red-300"
                         : "border-gray-300"
-                      }`}
+                    }`}
                     placeholder="Confirm your password"
                   />
                   <button
@@ -438,7 +446,15 @@ export default function Onboarding() {
             <div className="space-y-6">
               <div className="flex justify-center">
                 <AvatarUpload
-                  initialAvatar={profileData.avatar}
+                  initialAvatar={[avatar || profileData.avatar, avatarPreview]}
+                  onChange={(avatar: File, preview: string) => {
+                    console.log("Preview", preview);
+                    setProfileData((prev) => ({
+                      ...prev,
+                      avatar: avatar,
+                    }));
+                    setAvatarPreview(preview);
+                  }}
                   setShowUploadOptions={setShowUploadOptions}
                   showUploadOptions={showUploadOptions}
                 />
@@ -459,9 +475,9 @@ export default function Onboarding() {
                 <User className="h-10 w-10 text-blue-600" />
               </div> */}
               <div className="w-32 h-32 rounded-full bg-blue-100 flex items-center mx-auto justify-center overflow-hidden">
-                {profileData.avatar ? (
+                {avatarPreview ? (
                   <img
-                    src={profileData.avatar}
+                    src={avatarPreview}
                     alt="Profile"
                     className="w-full h-full object-cover"
                   />
@@ -519,10 +535,11 @@ export default function Onboarding() {
                   <button
                     key={genre}
                     onClick={() => handleGenreToggle(genre)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${profileData.genres.includes(genre)
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      profileData.genres.includes(genre)
                         ? "bg-blue-600 text-white"
                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                      }`}
+                    }`}
                   >
                     {genre}
                   </button>

@@ -107,49 +107,10 @@ export default function BlogPost() {
               </div>
             </header>
 
-            <div className="prose prose-lg max-w-none">
-              {post.content.split("\n").map((paragraph, index) => {
-                if (paragraph.startsWith("# ")) {
-                  return (
-                    <h1
-                      key={index}
-                      className="text-3xl font-bold text-gray-900 mt-8 mb-4"
-                    >
-                      {paragraph.substring(2)}
-                    </h1>
-                  );
-                } else if (paragraph.startsWith("## ")) {
-                  return (
-                    <h2
-                      key={index}
-                      className="text-2xl font-bold text-gray-900 mt-6 mb-3"
-                    >
-                      {paragraph.substring(3)}
-                    </h2>
-                  );
-                } else if (paragraph.startsWith("### ")) {
-                  return (
-                    <h3
-                      key={index}
-                      className="text-xl font-bold text-gray-900 mt-4 mb-2"
-                    >
-                      {paragraph.substring(4)}
-                    </h3>
-                  );
-                } else if (paragraph.trim() === "") {
-                  return <br key={index} />;
-                } else {
-                  return (
-                    <p
-                      key={index}
-                      className="text-gray-700 leading-relaxed mb-4"
-                    >
-                      {paragraph}
-                    </p>
-                  );
-                }
-              })}
-            </div>
+            <div
+              className="prose prose-lg max-w-none leading-8"
+              dangerouslySetInnerHTML={{ __html: post.content }}
+            ></div>
           </div>
         </article>
       )}
