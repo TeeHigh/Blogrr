@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { sendOtpToEmailApi } from "../../services/authService";
+import toast from "react-hot-toast";
 
 export default function useSendOtp() {
   const {
@@ -7,20 +8,26 @@ export default function useSendOtp() {
     data,
     isPending: isSendingOtp,
   } = useMutation({
-    mutationFn: (email: string) => sendOtpToEmailApi(email),
+    mutationFn: (email: string) => {
+      const toastId = toast.loading("Sending OTP...");
+      return sendOtpToEmailApi(email).finally(() => {
+        toast.dismiss(toastId);
+      });
+    },
     onSuccess: () => {
-      // Handle success, e.g., show a success message or redirect
+      toast.success("OTP sent!");
       console.log("OTP sent successfully");
     },
     onError: (error) => {
-      // Handle error, e.g., show an error message
+      toast.error("Failed to send OTP");
       console.error("Error sending OTP:", error);
     },
   });
 
-  return{
+  return {
     sendOtp,
     data,
-    isSendingOtp
-  }
+    isSendingOtp,
+  };
 }
+

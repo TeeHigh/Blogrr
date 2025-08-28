@@ -14,8 +14,9 @@ const useAvatarUpload = (initialAvatar: (string | File | null)[] = []) => {
 
   // const {avatar, setAvatar, uploading, setUploading} = useAvatarContext();
 
-  const handleAddAvatar = async (file: File): Promise<CloudinaryUploadResponse> => {
+  const handleAddAvatar = async (file: File): Promise<CloudinaryUploadResponse | null> => {
   if (!file) {
+    // return null;
     throw new Error("No file provided");
   }
 
@@ -25,10 +26,11 @@ const useAvatarUpload = (initialAvatar: (string | File | null)[] = []) => {
   if (file.size > MAX_SIZE_BYTES) {
     toast.error(`File is too large. Please upload an image under ${MAX_SIZE_MB}MB.`);
     throw new Error("File too large");
+    // return null;
   }
 
   setUploadingAvatar(true);
-  const toastId = toast.loading("Uploading image...");
+  const toastId = toast.loading("Uploading avatar...");
 
   try {
     // Make sure uploadToCloudinary returns CloudinaryUploadResponse

@@ -96,7 +96,7 @@ const AvatarUpload = ({ initialAvatar, onChange, showUploadOptions, setShowUploa
               disabled={isUploadingAvatar}
             />
 
-            {avatar && (
+            {previewAvatar && (
               <button
                 onClick={handleRemovePreview}
                 className="w-full flex items-center justify-center gap-2 py-2 px-4 text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors"

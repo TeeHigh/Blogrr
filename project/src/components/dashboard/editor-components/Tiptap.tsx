@@ -13,7 +13,6 @@ type TiptapProps = {
 }
 
 const Tiptap = ({content, setContent}: TiptapProps) => {
-  console.log(content);
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -58,7 +57,7 @@ const Tiptap = ({content, setContent}: TiptapProps) => {
             class: "underline"
           }
         },
-        
+
       }),
       Image,
       TextAlign.configure({ types: ["heading", "paragraph"] }),

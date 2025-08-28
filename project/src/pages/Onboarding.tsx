@@ -1,88 +1,26 @@
-import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import {
-  Camera,
-  User,
-  Heart,
   ArrowRight,
   ArrowLeft,
-  EyeOff,
-  Eye,
-  Lock,
   CheckCircle,
   AlertCircle,
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
-import api from "../api";
 import useRegister from "../hooks/authHooks/useRegister";
-import { RegisterFormData } from "../types/types";
-import AvatarUpload from "../components/AvatarUpload";
-import useAvatarUpload from "../hooks/useAvatarUpload";
-import useDebounce from "../hooks/useDebounce";
+import { useOnboardingContext } from "../contexts/OnboardingContext";
+import BiodataStep from "../components/onboarding/BiodataStep";
+import AvatarStep from "../components/onboarding/AvatarStep";
+import BioSummaryStep from "../components/onboarding/BioSummaryStep";
+import GenreStep from "../components/onboarding/GenreStep";
 
-const GENRES = [
-  "Technology",
-  "Web Development",
-  "Mobile Development",
-  "AI & Machine Learning",
-  "Design",
-  "UI/UX",
-  "Graphic Design",
-  "Product Design",
-  "Business",
-  "Entrepreneurship",
-  "Marketing",
-  "Finance",
-  "Lifestyle",
-  "Travel",
-  "Food",
-  "Health & Fitness",
-  "Science",
-  "Education",
-  "Politics",
-  "Environment",
-  "Entertainment",
-  "Gaming",
-  "Movies",
-  "Music",
-  "Sports",
-  "Photography",
-  "Art",
-  "Writing",
-];
+const { currentStep, profileData, setCurrentStep, handleComplete, loading, errors } =
+  useOnboardingContext();
 
-const SAMPLE_AVATARS = [
-  "https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=150",
-  "https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg?auto=compress&cs=tinysrgb&w=150",
-  "https://images.pexels.com/photos/1040880/pexels-photo-1040880.jpeg?auto=compress&cs=tinysrgb&w=150",
-  "https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=150",
-  "https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=150",
-  "https://images.pexels.com/photos/1300402/pexels-photo-1300402.jpeg?auto=compress&cs=tinysrgb&w=150",
-];
+const NO_OF_STEPS = 4;
 
 export default function Onboarding() {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [profileData, setProfileData] = useState({
-    fullname: "",
-    username: "",
-    password: "",
-    confirmPassword: "",
-    avatar: null as File | null,
-    bio: "",
-    genres: [] as string[],
-  });
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  // const [uploadingAvatar, setUploadingAvatar] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [loading, setLoading] = useState(false);
-  const [showUploadOptions, setShowUploadOptions] = useState(false);
-  const [usernameStatus, setUsernameStatus] = useState<string | null>(null);
-
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-
-  const { user, emailToVerify, emailVerified } = useAuth();
-  const { registerUser, isPending } = useRegister();
+  const { user, emailVerified } = useAuth();
+  const { isPending } = useRegister();
 
   if (!emailVerified) {
     return <Navigate to="/register" replace />;
@@ -91,25 +29,6 @@ export default function Onboarding() {
   if (user?.genres && user?.genres.length > 0) {
     return <Navigate to="/dashboard" replace />;
   }
-
-  const checkUsernameAvailability = async (username: string) => {
-    try {
-      const res = await api.get(`/api/check-username/`, {
-        params: { username },
-      });
-      setUsernameStatus(res.data.exists ? "taken" : "available");
-    } catch (error) {
-      console.error("Username check failed:", error);
-    }
-  };
-
-  const debouncedUsername = useDebounce(profileData.username, 1000);
-
-  useEffect(() => {
-  if (debouncedUsername.length > 2 && debouncedUsername.trim()) {
-    checkUsernameAvailability(debouncedUsername);
-  }
-}, [debouncedUsername]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -136,81 +55,6 @@ export default function Onboarding() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const { avatar, uploadingAvatar, handleAddAvatar, setUploadingAvatar } =
-    useAvatarUpload();
-
-  // useEffect(() => {
-  //   setProfileData((prev) => ({
-  //     ...prev,
-  //     avatar: avatar || prev.avatar,
-  //   }));
-  // }, [avatar]);
-
-  const handleInputChange = (field: string, value: string) => {
-    setProfileData((prev) => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: "" }));
-    }
-  };
-
-  const passwordStrength = (password: string) => {
-    let strength = 0;
-    if (password.length >= 6) strength++;
-    if (/[A-Z]/.test(password)) strength++;
-    if (/[0-9]/.test(password)) strength++;
-    if (/[^A-Za-z0-9]/.test(password)) strength++;
-    return strength;
-  };
-
-  const getStrengthColor = (strength: number) => {
-    if (strength <= 1) return "bg-red-500";
-    if (strength <= 2) return "bg-yellow-500";
-    if (strength <= 3) return "bg-blue-500";
-    return "bg-green-500";
-  };
-
-  const getStrengthText = (strength: number) => {
-    if (strength <= 1) return "Weak";
-    if (strength <= 2) return "Fair";
-    if (strength <= 3) return "Good";
-    return "Strong";
-  };
-
-  const handleGenreToggle = (genre: string) => {
-    setProfileData((prev) => ({
-      ...prev,
-      genres: prev.genres.includes(genre)
-        ? prev.genres.filter((g) => g !== genre)
-        : [...prev.genres, genre],
-    }));
-  };
-
-  const handleComplete = async () => {
-  setLoading(true);
-
-  try {
-    const avatarToUpload = profileData.avatar
-      ? await handleAddAvatar(profileData.avatar)
-      : null;
-
-    const { confirmPassword, ...filteredProfileData } = profileData;
-
-    const formData: RegisterFormData = {
-      ...filteredProfileData,
-      avatar: avatarToUpload?.secure_url, // ✅ now TS is happy
-      email: emailToVerify,
-    };
-
-    console.log(formData);
-    // await registerUser(formData);
-  } catch (error) {
-    console.error("Error during complete:", error);
-  } finally {
-    setLoading(false);
-  }
-};
-
-
 
   const canProceed = () => {
     switch (currentStep) {
@@ -236,326 +80,21 @@ export default function Onboarding() {
     switch (currentStep) {
       case 1:
         return (
-          <div className="text-center space-y-6">
-            <div className="space-y-4">
-              <h2 className="text-2xl font-bold text-gray-900">
-                Set up your account
-              </h2>
-              <p className="text-gray-600">Choose your username and password</p>
-            </div>
-
-            <div className="space-y-4 text-left">
-              {/* Full Name */}
-              <div>
-                <label
-                  htmlFor="fullName"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Full Name
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                  <input
-                    id="fullName"
-                    type="text"
-                    value={profileData.fullname}
-                    onChange={(e) =>
-                      handleInputChange("fullname", e.target.value)
-                    }
-                    className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-secondary-light focus:border-transparent ${
-                      errors.name ? "border-red-300" : "border-gray-300"
-                    }`}
-                    placeholder="Enter your full name"
-                  />
-                </div>
-                {errors.fullName && (
-                  <p className="text-red-600 text-sm mt-1">{errors.fullName}</p>
-                )}
-              </div>
-
-              {/* Username */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Username
-                </label>
-                <input
-                  type="text"
-                  value={profileData.username.trim().toLowerCase()}
-                  onChange={(e) => {
-                    setProfileData((prev) => ({
-                      ...prev,
-                      username: e.target.value.toLowerCase(),
-                    }));
-                    // setDebouncedUsername(e.target.value.toLowerCase());
-                  }}
-                  onKeyUp={() => {
-                    if (profileData.username.trim()) {
-                      checkUsernameAvailability(profileData.username);
-                    }
-                  }}
-                  className={`w-full px-4 py-3 border border-gray-300 rounded-lg ${
-                    profileData.username && usernameStatus === "taken"
-                      ? " ring-2 ring-cancel"
-                      : "focus:ring-2 focus:ring-secondary-light focus:border-transparent"
-                  }`}
-                  placeholder="johndoe123"
-                />
-              </div>
-              {profileData.username &&
-                (usernameStatus === "taken" ? (
-                  <InputMessage type="error">
-                    Username is already taken
-                  </InputMessage>
-                ) : (
-                  <InputMessage type="success">
-                    Username is available
-                  </InputMessage>
-                ))}
-              {/* {usernameStatus === "available" && (
-                <InputMessage type="success">
-                  Username is available
-                </InputMessage>
-              )} */}
-
-              {/* Password */}
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Password
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                  <input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    value={profileData.password}
-                    onChange={(e) =>
-                      handleInputChange("password", e.target.value)
-                    }
-                    className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-secondary-light focus:border-transparent ${
-                      errors.password ? "border-red-300" : "border-gray-300"
-                    }`}
-                    placeholder="Create a password"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-3 p-1 text-gray-400 hover:text-gray-600"
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-5 w-5" />
-                    ) : (
-                      <Eye className="h-5 w-5" />
-                    )}
-                  </button>
-                </div>
-                {profileData.password && (
-                  <div className="mt-2">
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className="flex-1 bg-gray-200 rounded-full h-2">
-                        <div
-                          className={`h-2 rounded-full transition-all duration-300 ${getStrengthColor(
-                            passwordStrength(profileData.password)
-                          )}`}
-                          style={{
-                            width: `${
-                              (passwordStrength(profileData.password) / 4) * 100
-                            }%`,
-                          }}
-                        />
-                      </div>
-                      <span className="text-xs text-gray-600">
-                        {getStrengthText(
-                          passwordStrength(profileData.password)
-                        )}
-                      </span>
-                    </div>
-                  </div>
-                )}
-                {errors.password && (
-                  <p className="text-red-600 text-sm mt-1">{errors.password}</p>
-                )}
-              </div>
-
-              {/* Confirm Password */}
-              <div>
-                <label
-                  htmlFor="confirmPassword"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Confirm Password
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                  <input
-                    id="confirmPassword"
-                    type={showConfirmPassword ? "text" : "password"}
-                    value={profileData.confirmPassword}
-                    onChange={(e) =>
-                      handleInputChange("confirmPassword", e.target.value)
-                    }
-                    className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-secondary-light focus:border-transparent ${
-                      errors.confirmPassword
-                        ? "border-red-300"
-                        : "border-gray-300"
-                    }`}
-                    placeholder="Confirm your password"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-3 p-1 text-gray-400 hover:text-gray-600"
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOff className="h-5 w-5" />
-                    ) : (
-                      <Eye className="h-5 w-5" />
-                    )}
-                  </button>
-                </div>
-                {profileData.confirmPassword &&
-                  profileData.password === profileData.confirmPassword && (
-                    <InputMessage type="success">Passwords Match</InputMessage>
-                  )}
-                {errors.confirmPassword && (
-                  <p className="text-red-600 text-sm mt-1">
-                    {errors.confirmPassword}
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
+          <BiodataStep />
         );
       case 2:
         return (
-          <div className="text-center space-y-6">
-            <div className="space-y-4">
-              <div className="bg-blue-100 rounded-full p-6 w-20 h-20 mx-auto flex items-center justify-center">
-                <Camera className="h-10 w-10 text-blue-600" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900">
-                Add a profile picture
-              </h2>
-              <p className="text-gray-600">
-                Help others recognize you in the community
-              </p>
-            </div>
-
-            <div className="space-y-6">
-              <div className="flex justify-center">
-                <AvatarUpload
-                  initialAvatar={[avatar || profileData.avatar, avatarPreview]}
-                  onChange={(avatar: File, preview: string) => {
-                    console.log("Preview", preview);
-                    setProfileData((prev) => ({
-                      ...prev,
-                      avatar: avatar,
-                    }));
-                    setAvatarPreview(preview);
-                  }}
-                  setShowUploadOptions={setShowUploadOptions}
-                  showUploadOptions={showUploadOptions}
-                />
-              </div>
-
-              <p className="text-sm text-gray-500">
-                You can skip this step and add a photo later
-              </p>
-            </div>
-          </div>
+          <AvatarStep />
         );
 
       case 3:
         return (
-          <div className="text-center space-y-6">
-            <div className="space-y-4">
-              {/* <div className="bg-blue-100 rounded-full p-6 w-20 h-20 mx-auto flex items-center justify-center">
-                <User className="h-10 w-10 text-blue-600" />
-              </div> */}
-              <div className="w-32 h-32 rounded-full bg-blue-100 flex items-center mx-auto justify-center overflow-hidden">
-                {avatarPreview ? (
-                  <img
-                    src={avatarPreview}
-                    alt="Profile"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <User className="h-10 w-10 text-blue-600" />
-                )}
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900">
-                Tell us about yourself
-              </h2>
-              <p className="text-gray-600">
-                Write a brief bio that describes who you are and what you write
-                about
-              </p>
-            </div>
-
-            <div className="space-y-4">
-              <textarea
-                value={profileData.bio}
-                onChange={(e) =>
-                  setProfileData((prev) => ({ ...prev, bio: e.target.value }))
-                }
-                placeholder="I'm a passionate writer who loves to share insights about..."
-                rows={4}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                maxLength={200}
-              />
-              <div className="text-right">
-                <span className="text-sm text-gray-500">
-                  {profileData.bio.length}/200 characters
-                </span>
-              </div>
-            </div>
-          </div>
+          <BioSummaryStep />
         );
 
       case 4:
         return (
-          <div className="text-center space-y-6">
-            <div className="space-y-4">
-              <div className="bg-blue-100 rounded-full p-6 w-20 h-20 mx-auto flex items-center justify-center">
-                <Heart className="h-10 w-10 text-blue-600" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900">
-                What are you interested in?
-              </h2>
-              <p className="text-gray-600">
-                Select at least 3 topics you're passionate about
-              </p>
-            </div>
-
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {GENRES.map((genre) => (
-                  <button
-                    key={genre}
-                    onClick={() => handleGenreToggle(genre)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      profileData.genres.includes(genre)
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
-                  >
-                    {genre}
-                  </button>
-                ))}
-              </div>
-
-              <p className="text-sm text-gray-500">
-                Selected: {profileData.genres.length} / {GENRES.length}
-                {profileData.genres.length < 3 && (
-                  <span className="text-orange-600 ml-2">
-                    (Select at least 3)
-                  </span>
-                )}
-              </p>
-            </div>
-          </div>
+          <GenreStep />
         );
 
       default:
@@ -570,7 +109,7 @@ export default function Onboarding() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-gray-700">
-              Step {currentStep} of 4
+              Step {currentStep} of {NO_OF_STEPS}
             </span>
             <span className="text-sm text-gray-500">
               {Math.round((currentStep / 4) * 100)}% complete
@@ -579,7 +118,7 @@ export default function Onboarding() {
           <div className="w-full bg-gray-200 rounded-full h-2">
             <div
               className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${(currentStep / 4) * 100}%` }}
+              style={{ width: `${(currentStep / NO_OF_STEPS) * 100}%` }}
             />
           </div>
         </div>
@@ -598,7 +137,7 @@ export default function Onboarding() {
               Back
             </button>
 
-            {currentStep < 4 ? (
+            {currentStep < NO_OF_STEPS ? (
               <button
                 onClick={() => setCurrentStep(currentStep + 1)}
                 disabled={!canProceed()}
@@ -629,7 +168,7 @@ type InputMessageProps = {
   type: "success" | "error";
 };
 
-const InputMessage = ({ children, type }: InputMessageProps) => {
+export const InputMessage = ({ children, type }: InputMessageProps) => {
   const isSuccess = type === "success";
 
   return (
