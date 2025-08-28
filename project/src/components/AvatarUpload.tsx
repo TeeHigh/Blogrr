@@ -1,55 +1,56 @@
-import React, { useState } from "react";
-// import { Camera, Upload, X } from "react-icons";
-import useAvatarUpload from "../hooks/useAvatarUpload"; // Import your hook
+import React, { useEffect, useState } from "react";
+import useAvatarUpload from "../hooks/useAvatarUpload";
 import { Camera, Upload, User, X } from "lucide-react";
+import { CloudinaryUploadResponse } from "../types/types";
+
 
 interface AvatarUploadProps {
-  initialAvatar: (string | File | null)[],
-  onChange: (avatar: File, preview: string) => void,
-  showUploadOptions: boolean,
-  setShowUploadOptions: React.Dispatch<React.SetStateAction<boolean>>
-};
+  initialAvatar: CloudinaryUploadResponse |  null;
+  onChange: (avatar: CloudinaryUploadResponse) => void;
+  showUploadOptions: boolean;
+  setShowUploadOptions: React.Dispatch<React.SetStateAction<boolean>>;
+}
 
-const AvatarUpload = ({ initialAvatar, onChange, showUploadOptions, setShowUploadOptions }: AvatarUploadProps) => {
-  const { avatar, uploadingAvatar: isUploadingAvatar, handleAddAvatar, handleRemoveAvatar } =
-    useAvatarUpload(initialAvatar);
+const AvatarUpload = ({
+  initialAvatar,
+  onChange,
+  showUploadOptions,
+  setShowUploadOptions,
+}: AvatarUploadProps) => {
+  const {
+    avatar,
+    uploadingAvatar,
+    handleAddAvatar,
+    handleRemoveAvatar,
+  } = useAvatarUpload(initialAvatar);
 
-  console.log("initial avatar:", initialAvatar);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
 
-  const [preview, setPreview] = useState("");
-
-  const previewAvatar = initialAvatar[1] ?? preview; //the preview of the avatar is saved at index 1
-  
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
 
-    if(!file) return;
-    if (previewAvatar) handleRemovePreview;
-    if (file) {
-      console.log(file);
-      const avatarPreview = URL.createObjectURL(file);
-      setPreview(avatarPreview)
-      onChange(file, avatarPreview); // Notify parent component of the change
+    if (!file) return;
     
-      setShowUploadOptions(false);
-    }
+    handleAddAvatar(file);
+    // onChange(newAvatar?.secureUrl ?? null);
   };
 
-  const handleRemovePreview = () => {
-  if (preview) {
-    URL.revokeObjectURL(preview);
-    setPreview("");               
-    onChange(null as any, "");    
-  }
-  setShowUploadOptions(false);
-};
+  useEffect(() => {
+    if (avatar) {
+      onChange(avatar);
+    }
+  }, [avatar]);
+
+  useEffect(() =>{
+    setIsUploadingAvatar(uploadingAvatar);
+  }, [uploadingAvatar])
 
   return (
     <div className="relative">
       <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-        {previewAvatar ? (
+        {avatar ? (
           <img
-            src={previewAvatar as string}
+            src={avatar.url}
             alt="Avatar"
             className="w-full h-full object-cover"
           />
@@ -58,7 +59,10 @@ const AvatarUpload = ({ initialAvatar, onChange, showUploadOptions, setShowUploa
         )}
       </div>
       <button
-        onClick={() => setShowUploadOptions(true)}
+        onClick={() => {
+          setShowUploadOptions(true);
+          console.log(showUploadOptions);
+        }}
         className="absolute bottom-0 right-0 bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition-colors"
         disabled={isUploadingAvatar}
       >
@@ -85,7 +89,7 @@ const AvatarUpload = ({ initialAvatar, onChange, showUploadOptions, setShowUploa
               className="w-full flex items-center justify-center gap-2 py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer mb-3"
             >
               <Upload className="h-4 w-4" />
-              {previewAvatar ? "Change avatar" : "Upload image (max size 2MB)*"}
+              {avatar ? "Change avatar" : "Upload image (max size 2MB)*"}
             </label>
             <input
               id="avatar-upload"
@@ -96,9 +100,9 @@ const AvatarUpload = ({ initialAvatar, onChange, showUploadOptions, setShowUploa
               disabled={isUploadingAvatar}
             />
 
-            {previewAvatar && (
+            {avatar && (
               <button
-                onClick={handleRemovePreview}
+                onClick={handleRemoveAvatar}
                 className="w-full flex items-center justify-center gap-2 py-2 px-4 text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors"
                 disabled={isUploadingAvatar}
               >

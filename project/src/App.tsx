@@ -26,6 +26,8 @@ import { BlogProvider } from "./contexts/BlogContext";
 import { Toaster } from "react-hot-toast";
 import OverlayLoader from "./components/OverlayLoader";
 import { ModalsProvider } from "@mantine/modals";
+import { OnboardingProvider } from "./contexts/OnboardingContext";
+import { AvatarProvider } from "./contexts/AvatarContext";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -77,8 +79,12 @@ function App() {
         <ModalsProvider>
           <AuthProvider>
             <BlogProvider>
-              <Toaster position="top-center" />
-              <AppRouter />
+              <AvatarProvider>
+                <OnboardingProvider>
+                  <Toaster position="top-center" />
+                  <AppRouter />
+                </OnboardingProvider>
+              </AvatarProvider>
             </BlogProvider>
           </AuthProvider>
         </ModalsProvider>

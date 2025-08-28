@@ -26,7 +26,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=150, unique=True)  # username
     full_name = models.CharField(max_length=100, blank=True)       # full name
-    avatar = models.URLField(blank=True, null=True)
+    avatar = models.JSONField(blank=True, null=True)
     bio = models.TextField(blank=True, null=True)
     genres = models.JSONField(blank=True, null=True)
 

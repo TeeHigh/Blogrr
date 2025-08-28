@@ -1,5 +1,4 @@
 import { useMutation } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
 import { registerApi } from "../../services/authService";
 import { useAuth } from "../../contexts/AuthContext";
 import { RegisterFormData, RegisterResponse } from "../../types/types";
@@ -13,7 +12,6 @@ const useRegister = () => {
     setIsAuthenticated,
     setOnboardingComplete,
   } = useAuth();
-  const navigate = useNavigate();
 
   const {
   mutateAsync: registerUser,
@@ -35,11 +33,11 @@ const useRegister = () => {
     localStorage.setItem("access_token", data.access_token);
     localStorage.setItem("refresh_token", data.refresh_token);
     localStorage.setItem("user", JSON.stringify(data.user));
-    navigate("/dashboard");
+    window.location.href = "/dashboard";
   },
   onError: (err) =>{
     console.error(err.message);
-    navigate("/register")
+    window.location.href = "/register";
   }
 });
 

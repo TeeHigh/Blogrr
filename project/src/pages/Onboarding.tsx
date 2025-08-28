@@ -12,16 +12,18 @@ import BiodataStep from "../components/onboarding/BiodataStep";
 import AvatarStep from "../components/onboarding/AvatarStep";
 import BioSummaryStep from "../components/onboarding/BioSummaryStep";
 import GenreStep from "../components/onboarding/GenreStep";
+import useAvatarUpload from "../hooks/useAvatarUpload";
 
-const { currentStep, profileData, setCurrentStep, handleComplete, loading, errors } =
-  useOnboardingContext();
 
 const NO_OF_STEPS = 4;
 
 export default function Onboarding() {
+  const { currentStep, profileData, setCurrentStep, handleComplete, loading, errors } =
+    useOnboardingContext();
   const { user, emailVerified } = useAuth();
   const { isPending } = useRegister();
-
+  const { uploadingAvatar } = useAvatarUpload();
+  
   if (!emailVerified) {
     return <Navigate to="/register" replace />;
   }
@@ -51,7 +53,7 @@ export default function Onboarding() {
       newErrors.confirmPassword = "Passwords do not match";
     }
 
-    setErrors(newErrors);
+    // setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 

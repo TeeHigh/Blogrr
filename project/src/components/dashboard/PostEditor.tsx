@@ -145,7 +145,9 @@ export default function PostEditor({
   const toastId = toast.loading("Uploading image...");
 
   try {
-    const { secureUrl, publicId } = await uploadToCloudinary(file);
+    const res = await uploadToCloudinary(file);
+    const { secure_url: secureUrl, public_id: publicId } = res;
+
     setCoverImage(secureUrl);
     setCoverImagePublicID(publicId);
 

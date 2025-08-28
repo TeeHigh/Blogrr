@@ -3,13 +3,13 @@ import AvatarUpload from "../AvatarUpload";
 import { useOnboardingContext } from "../../contexts/OnboardingContext";
 import { useAvatarContext } from "../../contexts/AvatarContext";
 import useAvatarUpload from "../../hooks/useAvatarUpload";
+import { CloudinaryUploadResponse } from "../../types/types";
 
 function AvatarStep() {
-  const {profileData, setProfileData, avatarPreview, setAvatarPreview} = useOnboardingContext();
+  const {profileData, setProfileData} = useOnboardingContext();
   const {showUploadOptions, setShowUploadOptions} = useAvatarContext();
 
-  const { avatar,  } =
-    useAvatarUpload();
+  const { avatar  } = useAvatarUpload();
 
   return (
     <div className="text-center space-y-6">
@@ -28,14 +28,14 @@ function AvatarStep() {
       <div className="space-y-6">
         <div className="flex justify-center">
           <AvatarUpload
-            initialAvatar={[avatar || profileData.avatar, avatarPreview]}
-            onChange={(avatar: File, preview: string) => {
-              console.log("Preview", preview);
-              setProfileData((prev) => ({
-                ...prev,
-                avatar: avatar,
-              }));
-              setAvatarPreview(preview);
+            initialAvatar={avatar || profileData.avatar}
+            onChange={(avatar: CloudinaryUploadResponse) => {
+              if(avatar){
+                setProfileData((prev) => ({
+                  ...prev,
+                  avatar,
+                }));
+              }
             }}
             setShowUploadOptions={setShowUploadOptions}
             showUploadOptions={showUploadOptions}

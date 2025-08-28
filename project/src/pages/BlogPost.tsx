@@ -69,7 +69,7 @@ export default function BlogPost() {
               <div className="flex items-center justify-between flex-wrap gap-4">
                 <div className="flex items-center gap-4">
                   <img
-                    src={post.author_avatar || "/assets/avatars/default.png"}
+                    src={post.author_avatar?.url || post.author_avatar || "/assets/avatars/default.png"}
                     alt={post.author}
                     className="w-12 h-12 rounded-full object-cover"
                   />

@@ -8,16 +8,16 @@ import {
 } from "react";
 
 import api from "../api";
-import { RegisterFormData } from "../types/types";
+import { CloudinaryUploadResponse, RegisterFormData } from "../types/types";
 import { useAuth } from "./AuthContext";
-import useAvatarUpload from "../hooks/useAvatarUpload";
+import useRegister from "../hooks/authHooks/useRegister";
 
 type ProfileDataType = {
   fullname: string;
   username: string;
   password: string;
   confirmPassword: string;
-  avatar: File | null;
+  avatar: CloudinaryUploadResponse | null;
   bio: string;
   genres: string[];
 };
@@ -33,7 +33,7 @@ type OnboardingContextType = {
       username: string;
       password: string;
       confirmPassword: string;
-      avatar: File | null;
+      avatar: CloudinaryUploadResponse | null;
       bio: string;
       genres: string[];
     }>
@@ -46,8 +46,6 @@ type OnboardingContextType = {
   setErrors: Dispatch<SetStateAction<Record<string, string>>>;
   usernameStatus: string | null;
   setUsernameStatus: Dispatch<SetStateAction<string | null>>;
-  avatarPreview: string | null;
-  setAvatarPreview: Dispatch<SetStateAction<string | null>>;
   loading: boolean;
   setLoading: Dispatch<SetStateAction<boolean>>;
   checkUsernameAvailability: (username: string) => Promise<void>;
@@ -93,12 +91,12 @@ export const OnboardingProvider = ({ children }: { children: ReactNode }) => {
   ];
 
   const [currentStep, setCurrentStep] = useState(1);
-  const [profileData, setProfileData] = useState({
+  const [profileData, setProfileData] = useState<ProfileDataType>({
     fullname: "",
     username: "",
     password: "",
     confirmPassword: "",
-    avatar: null as File | null,
+    avatar: null,
     bio: "",
     genres: [] as string[],
   });
@@ -111,10 +109,8 @@ export const OnboardingProvider = ({ children }: { children: ReactNode }) => {
   
   const [usernameStatus, setUsernameStatus] = useState<string | null>(null);
 
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-
   const { emailToVerify } = useAuth();
-  const {handleAddAvatar} = useAvatarUpload();
+  const {registerUser} = useRegister();
 
   const handleInputChange = (field: string, value: string) => {
     setProfileData((prev) => ({ ...prev, [field]: value }));
@@ -158,21 +154,16 @@ export const OnboardingProvider = ({ children }: { children: ReactNode }) => {
   const handleComplete = async () => {
     setLoading(true);
 
-    const avatarToUpload = profileData.avatar
-      ? await handleAddAvatar(profileData.avatar)
-      : null;
-
     try {
       const { confirmPassword, ...filteredProfileData } = profileData;
 
       const formData: RegisterFormData = {
         ...filteredProfileData,
-        avatar: avatarToUpload?.secure_url,
         email: emailToVerify,
       };
 
       console.log(formData);
-      // await registerUser(formData);
+      await registerUser(formData);
     } catch (error) {
       console.error("Error during complete:", error);
     } finally {
@@ -201,8 +192,6 @@ export const OnboardingProvider = ({ children }: { children: ReactNode }) => {
         setProfileData,
         usernameStatus,
         setUsernameStatus,
-        avatarPreview,
-        setAvatarPreview,
         showConfirmPassword,
         setShowConfirmPassword,
         errors,

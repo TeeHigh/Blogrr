@@ -1,6 +1,7 @@
+import { CloudinaryUploadResponse } from "../types/types";
 
 
-export async function uploadToCloudinary(file: File): Promise<{ secureUrl: string; publicId: string }> {
+export async function uploadToCloudinary(file: File): Promise<CloudinaryUploadResponse> {
   const formData = new FormData();
   formData.append("file", file);
   formData.append("upload_preset", "unsigned_preset");
@@ -16,20 +17,17 @@ export async function uploadToCloudinary(file: File): Promise<{ secureUrl: strin
 
   const data = await res.json();
   console.log(data)
-  return {
-    secureUrl: data.secure_url,
-    publicId: data.public_id,
-  };
+  return data;
 }
 
-export async function deleteFromCloudinary(publicId: string): Promise<void> {
+export async function deleteFromCloudinary(public_id: string): Promise<void> {
   const res = await fetch(`https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/destroy`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      public_id: publicId,
+      public_id
       // No api_key needed for unsigned uploads
     }),
   });

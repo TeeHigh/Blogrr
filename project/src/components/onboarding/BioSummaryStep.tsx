@@ -1,8 +1,10 @@
 import { User } from "lucide-react";
 import { useOnboardingContext } from "../../contexts/OnboardingContext";
+import useAvatarUpload from "../../hooks/useAvatarUpload";
 
 function BioSummaryStep() {
-  const {avatarPreview, profileData, setProfileData} = useOnboardingContext();
+  const { profileData, setProfileData} = useOnboardingContext();
+  // const {avatar} = useAvatarUpload();
 
   return (
     <div className="text-center space-y-6">
@@ -11,9 +13,9 @@ function BioSummaryStep() {
                 <User className="h-10 w-10 text-blue-600" />
               </div> */}
         <div className="w-32 h-32 rounded-full bg-blue-100 flex items-center mx-auto justify-center overflow-hidden">
-          {avatarPreview ? (
+          {profileData.avatar ? (
             <img
-              src={avatarPreview}
+              src={profileData.avatar?.url}
               alt="Profile"
               className="w-full h-full object-cover"
             />

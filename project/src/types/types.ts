@@ -8,7 +8,7 @@ export interface User {
   fullname: string;
   username: string;
   email: string;
-  avatar?: string;
+  avatar?: CloudinaryUploadResponse | null;
   role: "author" | "admin";
   genres?: string[];
   bio?: string;
@@ -19,7 +19,7 @@ export type RegisterFormData = {
   username: string;
   password: string;
   email: string;
-  avatar: string;
+  avatar?: CloudinaryUploadResponse | null;
   genres: string[];
   bio: string;
 };
@@ -30,7 +30,7 @@ export interface RegisterResponse {
     fullname: string;
     email: string;
     username: string;
-    avatar?: string;
+    avatar?: CloudinaryUploadResponse | null;
     role: "author" | "admin";
     genres?: string[];
     bio?: string;
@@ -51,7 +51,7 @@ export interface LoginResponse {
     fullname: string;
     email: string;
     username: string;
-    avatar?: string;
+    avatar?: CloudinaryUploadResponse | null;
     role: "author" | "admin";
     genres?: string[];
     bio?: string;
@@ -62,10 +62,27 @@ export interface LoginResponse {
 }
 
 export type CloudinaryUploadResponse = {
-  secureUrl: string;
-  publicId: string;
-  url?: string;
-  [key: string]: any; // in case Cloudinary adds extras
+  asset_id: string;
+  public_id: string;
+  version: number;
+  version_id: string;
+  signature: string;
+  width: number;
+  height: number;
+  format: string;
+  resource_type: string;
+  created_at: string;
+  tags: string[];
+  pages?: number;
+  bytes: number;
+  type: string;
+  etag: string;
+  placeholder: boolean;
+  url: string;
+  secure_url: string;
+  folder?: string;
+  original_filename: string;
+  api_key?: string;
 };
 
 export interface DashboardResponse{
@@ -92,7 +109,7 @@ export interface BlogPost {
   content: string;
   excerpt: string;
   author: string;
-  author_avatar: string;
+  author_avatar: CloudinaryUploadResponse | null;
   created_at?: string;  
   updated_at?: string;
   published_at?: string | null;

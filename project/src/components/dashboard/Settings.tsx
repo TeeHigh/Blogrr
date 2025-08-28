@@ -127,7 +127,7 @@ export default function Settings() {
               <div className="flex items-center gap-6 mb-6">
                 <div className="relative">
                   <img
-                    src={profileData.avatar || defaultAvatar}
+                    src={profileData.avatar?.url || defaultAvatar}
                     alt="Profile"
                     className="w-20 h-20 rounded-full object-cover"
                   />

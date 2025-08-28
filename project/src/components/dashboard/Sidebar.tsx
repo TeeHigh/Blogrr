@@ -60,7 +60,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
       <div className="p-4 border-b border-gray-200">
         <div className="flex items-center gap-3">
           <img
-            src={user?.avatar || '/assets/avatars/default.png'}
+            src={user?.avatar?.url || user?.avatar || '/assets/avatars/default.png'}
             alt={user?.fullname}
             className="w-10 h-10 rounded-full object-cover"
           />
