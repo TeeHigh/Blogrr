@@ -10,13 +10,16 @@ import {
   X
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { defaultAvatar } from '../../constants/defaultAvatar';
+import useLogout from '../../hooks/authHooks/useLogout';
 
 interface SidebarProps {
   onClose: () => void;
 }
 
 export default function Sidebar({ onClose }: SidebarProps) {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
+  const { logout } = useLogout();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -60,7 +63,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
       <div className="p-4 border-b border-gray-200">
         <div className="flex items-center gap-3">
           <img
-            src={user?.avatar?.url || user?.avatar || '/assets/avatars/default.png'}
+            src={user?.avatar?.url || defaultAvatar}
             alt={user?.fullname}
             className="w-10 h-10 rounded-full object-cover"
           />

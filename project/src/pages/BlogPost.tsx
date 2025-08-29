@@ -3,6 +3,7 @@ import { Calendar, Clock, ArrowLeft, Share2, Bookmark } from "lucide-react";
 import { useBlogContext } from "../contexts/BlogContext";
 import Header from "../components/Header";
 import OverlayLoader from "../components/OverlayLoader";
+import { defaultAvatar } from "../constants/defaultAvatar";
 
 export default function BlogPost() {
   const { id } = useParams<{ id: string }>();
@@ -69,7 +70,7 @@ export default function BlogPost() {
               <div className="flex items-center justify-between flex-wrap gap-4">
                 <div className="flex items-center gap-4">
                   <img
-                    src={post.author_avatar?.url || post.author_avatar || "/assets/avatars/default.png"}
+                    src={post.author_avatar?.url || defaultAvatar}
                     alt={post.author}
                     className="w-12 h-12 rounded-full object-cover"
                   />

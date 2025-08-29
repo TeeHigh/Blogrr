@@ -93,6 +93,11 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    // If refresh request itself fails, don't retry
+    if (originalRequest.url.includes("/api/refresh/")) {
+      return Promise.reject(error);
+    }
+
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
@@ -100,12 +105,14 @@ api.interceptors.response.use(
         return api(originalRequest); // retry original request
       } catch (refreshError) {
         console.error("Refresh failed", refreshError);
-        // maybe logout here
+        window.location.href = "/login";
+        return Promise.reject(refreshError);
       }
     }
 
     return Promise.reject(error);
   }
 );
+
 
 export default api;

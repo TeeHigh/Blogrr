@@ -30,6 +30,7 @@ export const logoutApi = async () => {
     }
   }
 }
+
 export const registerApi = async (formData: RegisterFormData) => {
   try {
     const res = await api.post("/api/user/register/", formData);

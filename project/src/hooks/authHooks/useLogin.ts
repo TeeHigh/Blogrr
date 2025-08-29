@@ -19,10 +19,6 @@ const useLogin = () => {
     data,
   } = useMutation<LoginResponse, AxiosError, LoginInput>({
     mutationFn: async ({ email, password }) => {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
-      localStorage.removeItem("user");
-
       return await toast.promise(loginApi(email, password), {
         loading: "Signing in...",
         success: "Signed in successfully!",
@@ -30,8 +26,6 @@ const useLogin = () => {
       });
     },
     onSuccess: (data) => {
-      localStorage.setItem("access_token", data.access);
-      localStorage.setItem("refresh_token", data.refresh);
       setIsAuthenticated(true);
       
       console.log(data);

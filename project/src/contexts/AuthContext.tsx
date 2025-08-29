@@ -23,7 +23,7 @@ interface AuthContextType {
   setEmailToVerify: (email: string) => void;
   setEmailAvailable: (status: boolean) => void;
   setEmailVerified: (status: boolean) => void;
-  logout: () => void;
+  // logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -71,15 +71,13 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, []);
 
-  const logout = () => {
-    setUser(null);
-    setIsAuthenticated(false);
-    setOnboardingComplete(false);
-    setEmailVerified(false);
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
-    localStorage.removeItem("user");
-  };
+  // const logout = () => {
+  //   setUser(null);
+  //   setIsAuthenticated(false);
+  //   setOnboardingComplete(false);
+  //   setEmailVerified(false);
+  //   // const res = await 
+  // };
 
   return (
     <AuthContext.Provider
@@ -96,7 +94,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         setEmailToVerify,
         setEmailVerified,
         setEmailAvailable,
-        logout,
+        // logout,
       }}
     >
       {children}

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { BlogPost } from "../../types/types";
 import { ArrowRight, Calendar, Clock } from "lucide-react";
+import { defaultAvatar } from "../../constants/defaultAvatar";
 
 type HomepageBlogItemProps = {
   post: BlogPost;
@@ -64,7 +65,7 @@ function HomepageBlogItem({ post }: HomepageBlogItemProps) {
                 <div className="absolute inset-0 rounded-full bg-gray-200 animate-pulse" />
               )}
               <img
-                src={post.author_avatar?.url || post.author_avatar || "/assets/avatars/default.png"}
+                src={post.author_avatar?.url || defaultAvatar}
                 alt={post.author}
                 className={`w-10 h-10 rounded-full object-cover ${
                   avatarLoaded ? "opacity-100" : "opacity-0"

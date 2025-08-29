@@ -33,7 +33,7 @@ export default function Dashboard() {
   // Fetch user data on mount
   useEffect(() => {
   const init = async () => {
-    if (isFetchingDashData) return; // 👈 don't create toast if still fetching
+    if (isFetchingDashData) return;
 
     const toastId = toast.loading("Fetching dashboard");
     if (!userData) {
@@ -55,7 +55,7 @@ export default function Dashboard() {
   };
 
   init();
-}, [userData, isFetchingDashData]);
+}, [userData]);
 
 
 
