@@ -8,7 +8,7 @@ import { APIError } from "../types/types.ts";
 
 export default function Login() {
   const [formData, setFormData] = useState({
-    email: "badgal@mailinator.com",
+    email: "fido@mailinator.com",
     password: "Pa$$w0rd!",
   });
   const [showPassword, setShowPassword] = useState(false);

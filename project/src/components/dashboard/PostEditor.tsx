@@ -10,7 +10,7 @@ import {
   X,
 } from "lucide-react";
 import toast from "react-hot-toast";
-// import Highlight from '@tiptap/extension-high 
+// import Highlight from '@tiptap/extension-high
 
 import { useBlogContext } from "../../contexts/BlogContext";
 import { useAuth } from "../../contexts/AuthContext";
@@ -42,7 +42,7 @@ export default function PostEditor({
   const [saving, setSaving] = useState(false);
   const [uploadingCoverImage, setUploadingCoverImage] = useState(false);
   const [coverImagePublicID, setCoverImagePublicID] = useState<string>("");
-  const [originalData, setOriginalData] = useState<any>(null); 
+  const [originalData, setOriginalData] = useState<any>(null);
 
   const [hasCheckedImage, setHasCheckedImage] = useState(false);
 
@@ -110,10 +110,21 @@ export default function PostEditor({
       : true; // For create mode, always true
 
   const handleAddTag = () => {
-    if (newTag.trim() && !tags.includes(newTag.trim())) {
-      setTags([...tags, newTag.trim()]);
-      setNewTag("");
+    if (!newTag.trim()) return;
+
+    // Split by comma OR by #, filter out empties, and trim spaces
+    const newTags = newTag
+      .split(/[# ,]+/) // split on #, comma, or space
+      .map((tag) => tag.trim())
+      .filter((tag) => tag.length > 0);
+
+    // Add only unique ones that aren’t already in tags
+    const uniqueTags = newTags.filter((tag) => !tags.includes(tag));
+
+    if (uniqueTags.length > 0) {
+      setTags([...tags, ...uniqueTags]);
     }
+    setNewTag("");
   };
 
   const handleRemoveTag = (tagToRemove: string) => {
@@ -121,47 +132,46 @@ export default function PostEditor({
   };
 
   const handleAddCoverImage = async (
-  e: React.ChangeEvent<HTMLInputElement>
-) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  const MAX_SIZE_MB = 2;
-  const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
+    const MAX_SIZE_MB = 2;
+    const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
 
-  if (file.size > MAX_SIZE_BYTES) {
-    toast.error(
-      `File is too large. Please upload an image under ${MAX_SIZE_MB}MB.`,
-      {
-        icon: <AlertCircleIcon className="text-orange-500" />,
-      }
-    );
-    return;
-  }
+    if (file.size > MAX_SIZE_BYTES) {
+      toast.error(
+        `File is too large. Please upload an image under ${MAX_SIZE_MB}MB.`,
+        {
+          icon: <AlertCircleIcon className="text-orange-500" />,
+        }
+      );
+      return;
+    }
 
-  setUploadingCoverImage(true);
+    setUploadingCoverImage(true);
 
-  // Show loading toast and keep its id
-  const toastId = toast.loading("Uploading image...");
+    // Show loading toast and keep its id
+    const toastId = toast.loading("Uploading image...");
 
-  try {
-    const res = await uploadToCloudinary(file);
-    const { secure_url: secureUrl, public_id: publicId } = res;
+    try {
+      const res = await uploadToCloudinary(file);
+      const { secure_url: secureUrl, public_id: publicId } = res;
 
-    setCoverImage(secureUrl);
-    setCoverImagePublicID(publicId);
+      setCoverImage(secureUrl);
+      setCoverImagePublicID(publicId);
 
-    // Update the same toast
-    toast.success("Image upload successful!", { id: toastId });
-  } catch (err) {
-    // Update the same toast
-    toast.error("Upload failed", { id: toastId });
-    console.error(err);
-  } finally {
-    setUploadingCoverImage(false);
-  }
-};
-
+      // Update the same toast
+      toast.success("Image upload successful!", { id: toastId });
+    } catch (err) {
+      // Update the same toast
+      toast.error("Upload failed", { id: toastId });
+      console.error(err);
+    } finally {
+      setUploadingCoverImage(false);
+    }
+  };
 
   const handleRemoveCoverImage = async () => {
     try {
@@ -349,7 +359,7 @@ export default function PostEditor({
                     toast.error("Invalid image URL");
                     setTimeout(() => {
                       setCoverImage("");
-                    }, 500);
+                    }, 100);
                   }}
                 />
               </div>

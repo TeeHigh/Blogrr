@@ -41,7 +41,12 @@ class UserSerializer(serializers.ModelSerializer):
         if User.objects.filter(username__iexact=value).exists():
             raise serializers.ValidationError("This username is already taken.")
         return value
-
+    
+    def validate_avatar(self, value):
+        if value in ["", None]:
+            return None
+        return value
+    
     def create(self, validated_data):
         password = validated_data.pop("password")
         user = User(**validated_data)

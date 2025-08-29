@@ -14,11 +14,134 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 
 from .models import Blog
 from .serializers import BlogSerializer, UserSerializer, CustomTokenObtainPairSerializer
 
 User = get_user_model()
+
+def set_cookie(response, key, value, max_age, httponly=True):
+    response.set_cookie(
+        key,
+        value,
+        max_age=max_age,
+        secure=True,             
+        httponly=httponly,       
+        samesite="None",
+        path="/",         
+    )
+    return response
+
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
+
+class UserRegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [AllowAny]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+
+        # Create tokens
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
+
+        response = Response(
+            {
+                "user": UserSerializer(user).data,
+                "message": "Registration successful."
+            },
+            status=status.HTTP_201_CREATED
+        )
+
+        # Set HttpOnly cookies
+        response.set_cookie(
+            key="access_token",
+            value=access_token,
+            httponly=True,
+            secure=False,          # use True in production
+            samesite="None", # Adjusted based on frontend
+            max_age=60 * 10,       # 10 minutes
+        )
+        response.set_cookie(
+            key="refresh_token",
+            value=str(refresh),
+            httponly=True,
+            secure=False,
+            samesite="None",
+            max_age=60 * 60 * 24 * 7,  # 7 days
+        )
+
+        return response
+
+
+class LoginView(generics.CreateAPIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        from django.contrib.auth import authenticate
+        email = request.data.get("email")
+        password = request.data.get("password")
+        user = authenticate(request, email=email, password=password)
+
+        if not user:
+            return Response({"error": "Invalid credentials"}, status=400)
+
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
+
+        response = Response({"message": "Login successful"})
+        set_cookie(response, "access", access_token, 15*60)
+        set_cookie(response, "refresh", str(refresh), 7*24*60*60)
+        return response
+
+
+class LogoutView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        response = Response({"message": "Logged out"})
+        response.delete_cookie("access")
+        response.delete_cookie("refresh")
+        return response
+
+
+class RefreshView(generics.CreateAPIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        refresh_token = request.COOKIES.get("refresh")
+        if not refresh_token:
+            return Response({"error": "Refresh token missing"}, status=401)
+
+        try:
+            refresh = RefreshToken(refresh_token)
+            new_access = str(refresh.access_token)
+
+            response = Response({"message": "Token refreshed"})
+            response.set_cookie(
+                "access",
+                new_access,
+                httponly=True,
+                secure=False,  # True in prod
+                samesite="None",
+                max_age=15 * 60,
+            )
+            return response
+        except TokenError:
+            return Response({"error": "Invalid or expired refresh"}, status=401)
+
+        response = Response({"message": "Token refreshed"})
+        response.set_cookie(
+            "access", new_access,
+            httponly=True, samesite="Lax", secure=False, max_age=15*60
+        )
+        return response
 
 # Public Blog List view
 class BlogListView(generics.ListAPIView):
@@ -39,29 +162,6 @@ class AuthorDashboardView(generics.ListAPIView):
             "blogs": blog_data
         })
 
-
-class CustomTokenObtainPairView(TokenObtainPairView):
-    serializer_class = CustomTokenObtainPairSerializer
-
-class UserRegisterView(generics.CreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [AllowAny]
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
-
-        refresh = RefreshToken.for_user(user)
-        token = str(refresh.access_token)
-
-        return Response({
-            # "user": UserSerializer(user).data,
-            "access_token": str(token),
-            "refresh_token": str(refresh),
-        }, status=status.HTTP_201_CREATED)
-    
 
 class CreateListBlogsView(generics.ListCreateAPIView):
     queryset = Blog.objects.all()

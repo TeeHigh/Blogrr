@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { useBlogContext } from "../contexts/BlogContext";
 import OverlayLoader from "../components/OverlayLoader";
 import useUser from "../hooks/blogHooks/useUser";
+import { clear } from "console";
 
 // Lazy-loaded components
 const DashboardOverview = lazy(
@@ -31,28 +32,31 @@ export default function Dashboard() {
 
   // Fetch user data on mount
   useEffect(() => {
-    const init = async () => {
-      if (isFetchingDashData) return;
+  const init = async () => {
+    if (isFetchingDashData) return; // 👈 don't create toast if still fetching
 
-      if (!userData) {
-        toast.error("Session expired. Please log in again.");
-        navigate("/login");
-        return;
-      }
-      try {
-        const data = userData;;
-        console.log(data);
-        setUser(data.author);
-        setIsAuthenticated(true);
-        setAuthorPosts(data.blogs);
-      } catch (error) {
-        toast.error("Session expired. Please log in again.");
-        navigate("/login");
-      }
-    };
+    const toastId = toast.loading("Fetching dashboard");
+    if (!userData) {
+      toast.error("Session expired. Please log in again.", { id: toastId });
+      navigate("/login");
+      return;
+    }
+    try {
+      setUser(userData.author);
+      setIsAuthenticated(true);
+      setAuthorPosts(userData.blogs);
+      toast.success("Dashboard loaded", { id: toastId });
+    } catch (error) {
+      toast.error("Session expired. Please log in again.", { id: toastId });
+      console.error(error);
+    } finally {
+      toast.dismiss(toastId);
+    }
+  };
 
-    init();
-  }, [userData, isFetchingDashData]);
+  init();
+}, [userData, isFetchingDashData]);
+
 
 
   return (

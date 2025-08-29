@@ -103,7 +103,24 @@ DATABASES = {
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=10),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "AUTH_COOKIE": "access",
+    "AUTH_COOKIE_REFRESH": "refresh",
+    "AUTH_COOKIE_DOMAIN": None,
+    "AUTH_COOKIE_SECURE": False, # Should be True in production with HTTPS
+    "AUTH_COOKIE_HTTP_ONLY": True,
+    "AUTH_COOKIE_PATH": "/",
+    "AUTH_COOKIE_SAMESITE": "Lax",
 }
+
+# SIMPLE_JWT = {
+#     "AUTH_COOKIE": "access",        # name of the access cookie
+#     "AUTH_COOKIE_REFRESH": "refresh",
+#     "AUTH_COOKIE_SECURE": False,    # True in production
+#     "AUTH_COOKIE_HTTP_ONLY": True,
+#     "AUTH_COOKIE_SAMESITE": "Lax",
+# }
 
 
 # Password validation
@@ -156,11 +173,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'api.auth_backends.CookieJWTAuthentication',
     ),
 }
 
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOWS_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173"
+]
+CORS_ALLOW_CREDENTIALS = True
 
 from decouple import config
 

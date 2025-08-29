@@ -27,6 +27,7 @@ const useRegister = () => {
     error: "Sign up failed!"
   }),
   onSuccess: (data) => {
+    console.log(data);
     setUser(data.user);
     setIsAuthenticated(true);
     setOnboardingComplete(!!data.user.fullname && emailVerified);

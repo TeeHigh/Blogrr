@@ -4,7 +4,7 @@ import { RegisterFormData } from "../types/types";
 
 export const loginApi = async (email: string, password: string) => {
   try {
-    const res = await api.post("/api/token/", { email, password });
+    const res = await api.post("/api/login/", { email, password });
     return res.data;
   } catch (err) {
     
@@ -17,6 +17,19 @@ export const loginApi = async (email: string, password: string) => {
   }
 };
 
+export const logoutApi = async () => {
+  try {
+    const res = await api.post("/api/logout/");
+    return res.data;
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      if (err.response?.data?.tags) {
+        throw new Error(err.response.data.tags.join(", "));
+      }
+      throw new Error("Failed to logout");
+    }
+  }
+}
 export const registerApi = async (formData: RegisterFormData) => {
   try {
     const res = await api.post("/api/user/register/", formData);

@@ -6,7 +6,7 @@ import Loader from '../components/Loader';
 import HomepageBlogItem from '../components/homepage/HomepageBlogItem';
 
 export default function HomePage() {
-  const { posts: publishedPosts, isFetchingBlogs } = useGetPublishedBlogs();
+  const { posts: publishedPosts = [], isFetchingBlogs } = useGetPublishedBlogs();
 
 if (isFetchingBlogs) {
   return <Loader />;
