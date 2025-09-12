@@ -1,14 +1,12 @@
 import api from "../api";
 
 export const fetchUser = async () => {
-  const access = localStorage.getItem("access_token");
-
-  if (!access) {
-    throw new Error("No access token found");
+  try{
+    const res = await api.get("/api/dashboard/");
+    return res.data;
   }
-
-  api.defaults.headers.common["Authorization"] = `Bearer ${access}`;
-
-  const res = await api.get("/api/dashboard/");
-  return res.data;
+  catch(err){
+    console.error("Error fetching user data:", err);
+    throw err;
+  }
 };

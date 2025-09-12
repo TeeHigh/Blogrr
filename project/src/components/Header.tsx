@@ -2,10 +2,16 @@ import { Link } from "react-router-dom";
 import { LogIn, X, Menu } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useState } from "react";
+import useVerifyAuth from "../hooks/authHooks/useVerifyAuth";
+import useUser from "../hooks/blogHooks/useUser";
 
 export default function Header() {
-  const { user } = useAuth();
+  // const { isAuthenticated } = useVerifyAuth();
+  const {data = []} = useUser();
   const [isOpen, setIsOpen] = useState(false); // ✅ Correctly placed hook
+
+  if (!data) return null;
+  console.log(data);
 
   return (
     <header className="bg-white border-b border-gray-200">
@@ -25,7 +31,7 @@ export default function Header() {
 
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-4">
-            {user ? (
+            {data.author ? (
               <Link
                 to="/dashboard"
                 className="bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-light transition-colors"
@@ -64,7 +70,7 @@ export default function Header() {
         {/* Mobile nav */}
         {isOpen && (
           <div className="md:hidden my-3 space-y-2 text-center ">
-            {user ? (
+            {data.author ? (
               <Link
                 to="/dashboard"
                 className="block bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-light"

@@ -41,9 +41,6 @@ const AvatarUpload = ({
     }
   }, [avatar]);
 
-  useEffect(() =>{
-    setIsUploadingAvatar(uploadingAvatar);
-  }, [uploadingAvatar])
 
   return (
     <div className="relative">
@@ -64,7 +61,7 @@ const AvatarUpload = ({
           console.log(showUploadOptions);
         }}
         className="absolute bottom-0 right-0 bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition-colors"
-        disabled={isUploadingAvatar}
+        disabled={uploadingAvatar}
       >
         <Camera className="h-4 w-4" />
       </button>
@@ -97,14 +94,14 @@ const AvatarUpload = ({
               accept="image/*"
               onChange={handleFileChange}
               className="hidden"
-              disabled={isUploadingAvatar}
+              disabled={uploadingAvatar}
             />
 
             {avatar && (
               <button
                 onClick={handleRemoveAvatar}
                 className="w-full flex items-center justify-center gap-2 py-2 px-4 text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors"
-                disabled={isUploadingAvatar}
+                disabled={uploadingAvatar}
               >
                 <X className="h-4 w-4" /> Remove Photo
               </button>

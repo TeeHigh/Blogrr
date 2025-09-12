@@ -6,9 +6,10 @@ import React, {
   useEffect,
   Dispatch,
   SetStateAction,
-  useRef,
 } from "react";
 import { User } from "../types/types";
+import api from "../api";
+import { AxiosResponse } from "axios";
 
 interface AuthContextType {
   user: User | null;
@@ -17,13 +18,14 @@ interface AuthContextType {
   emailToVerify: string;
   emailAvailable: boolean;
   emailVerified: boolean;
+  loading: boolean;
   setUser: Dispatch<SetStateAction<User | null>>;
   setIsAuthenticated: (auth: boolean) => void;
   setOnboardingComplete: (status: boolean) => void;
   setEmailToVerify: (email: string) => void;
   setEmailAvailable: (status: boolean) => void;
   setEmailVerified: (status: boolean) => void;
-  // logout: () => void;
+  setLoading: (status: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -31,53 +33,42 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  // const [auth, setAuth] = useState()({})
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [onboardingComplete, setOnboardingComplete] = useState(false);
   const [emailAvailable, setEmailAvailable] = useState(false);
   const [emailVerified, setEmailVerified] = useState(false);
-  // const [emailToVerify, setEmailToVerify] = useState<string>("");
+  const [emailToVerify, setEmailToVerify] = useState<string>("");
 
-  const emailToVerify = useRef<string>("");
+  // useEffect(() => {
+  //   const checkAuth = async () => {
+  //     try {
+  //       const res: AxiosResponse<{ user: User }> = await api.get("/api/verify-auth/");
+  //       console.log("Auth verification response:", res);
 
-  const setEmailToVerify = (email: string) => {
-    emailToVerify.current = email;
-  };
+  //       if (res.status === 200 && res.data.user) {
+  //         const fetchedUser = res.data.user;
+  //         setUser(fetchedUser);
+  //         setIsAuthenticated(true);
+  //         setEmailVerified(!!fetchedUser.email);
+  //         setOnboardingComplete(!!fetchedUser.fullname && !!fetchedUser.email);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error verifying auth on mount:", error);
+  //       // Clear all state on auth failure
+  //       setUser(null);
+  //       setIsAuthenticated(false);
+  //       setEmailVerified(false);
+  //       setOnboardingComplete(false);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
-  useEffect(() => {
-    try {
-      const storedUser = localStorage.getItem("user");
-      const token = localStorage.getItem("token");
-
-      if (storedUser && token) {
-        const parsedUser = JSON.parse(storedUser);
-
-        setUser(parsedUser);
-        setIsAuthenticated(true);
-        setEmailVerified(!!parsedUser.emailVerified);
-        setOnboardingComplete(!!parsedUser.name && !!parsedUser.emailVerified);
-      } else {
-        setUser(null);
-        setIsAuthenticated(false);
-        setEmailVerified(false);
-        setOnboardingComplete(false);
-      }
-    } catch (error) {
-      console.error("Error loading auth from localStorage", error);
-      setUser(null);
-      setIsAuthenticated(false);
-      setEmailVerified(false);
-      setOnboardingComplete(false);
-    }
-  }, []);
-
-  // const logout = () => {
-  //   setUser(null);
-  //   setIsAuthenticated(false);
-  //   setOnboardingComplete(false);
-  //   setEmailVerified(false);
-  //   // const res = await 
-  // };
+  //   checkAuth();
+  // }, []);
 
   return (
     <AuthContext.Provider
@@ -87,14 +78,15 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         onboardingComplete,
         emailVerified,
         emailAvailable,
-        emailToVerify: emailToVerify.current,
+        emailToVerify,
+        loading,
         setUser,
+        setLoading,
         setIsAuthenticated,
         setOnboardingComplete,
         setEmailToVerify,
         setEmailVerified,
         setEmailAvailable,
-        // logout,
       }}
     >
       {children}

@@ -28,12 +28,8 @@ import OverlayLoader from "./components/OverlayLoader";
 import { ModalsProvider } from "@mantine/modals";
 import { OnboardingProvider } from "./contexts/OnboardingContext";
 import { AvatarProvider } from "./contexts/AvatarContext";
-
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuth();
-
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
-}
+import ProtectedRoute from "./components/ProtectedRoute";
+import CSRFToken from "./components/CSRFToken";
 
 function AppRouter() {
   return (
@@ -46,15 +42,13 @@ function AppRouter() {
           <Route path="/register" element={<Register />} />
           <Route path="/verify-email" element={<EmailVerification />} />
           <Route path="/onboarding" element={<Onboarding />} />
-          <Route
-            path="/dashboard/*"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
+          
+          <Route element={<ProtectedRoute />}>
+            <Route path="/dashboard/*" element={<Dashboard />} />
+          </Route>
+
           <Route path="*" element={<Navigate to="/" replace />} />
+
         </Routes>
       </Suspense>
     </Router>
@@ -64,15 +58,6 @@ function AppRouter() {
 const queryClient = new QueryClient();
 
 function App() {
-  //   useEffect(() => {
-  //   const token = localStorage.getItem("access_token");
-  //   if (!token || isTokenExpired(token)) {
-  //     localStorage.removeItem("access_token");
-  //     localStorage.removeItem("refresh_token");
-  //     window.location.href = "/login"; // or use navigate("/login")
-  //   }
-  // }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
       <MantineProvider>
@@ -82,6 +67,7 @@ function App() {
               <AvatarProvider>
                 <OnboardingProvider>
                   <Toaster position="top-center" />
+                  <CSRFToken /> 
                   <AppRouter />
                 </OnboardingProvider>
               </AvatarProvider>

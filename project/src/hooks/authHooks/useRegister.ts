@@ -7,10 +7,10 @@ import toast from "react-hot-toast";
 
 const useRegister = () => {
   const {
-    emailVerified,
-    setUser,
-    setIsAuthenticated,
-    setOnboardingComplete,
+    // emailVerified,
+    // setUser,
+    // setIsAuthenticated,
+    // setOnboardingComplete,
   } = useAuth();
 
   const {
@@ -28,17 +28,14 @@ const useRegister = () => {
   }),
   onSuccess: (data) => {
     console.log(data);
-    setUser(data.user);
-    setIsAuthenticated(true);
-    setOnboardingComplete(!!data.user.fullname && emailVerified);
-    localStorage.setItem("access_token", data.access_token);
-    localStorage.setItem("refresh_token", data.refresh_token);
-    localStorage.setItem("user", JSON.stringify(data.user));
+    // setUser(data.user);
+    // setIsAuthenticated(true);
+    // setOnboardingComplete(!!data.user.fullname && emailVerified);
     window.location.href = "/dashboard";
   },
   onError: (err) =>{
     console.error(err.message);
-    window.location.href = "/register";
+    // window.location.href = "/register";
   }
 });
 

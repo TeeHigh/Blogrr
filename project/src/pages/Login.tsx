@@ -5,6 +5,7 @@ import useLogin from "../hooks/authHooks/useLogin.ts";
 import { useAuth } from "../contexts/AuthContext";
 import axios, { AxiosError } from "axios";
 import { APIError } from "../types/types.ts";
+import CSRFToken from "../components/CSRFToken.tsx";
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -36,6 +37,7 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-between auth-page-background">
+      <CSRFToken />
       <div className="max-w-md w-full p-6 mx-auto">
         <div className="text-center mb-8">
           <img

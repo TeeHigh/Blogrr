@@ -22,7 +22,6 @@ const Settings = lazy(() => import("../components/dashboard/Settings"));
 
 export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const navigate = useNavigate();
   
   const { setUser, setIsAuthenticated } = useAuth();
   const { setAuthorPosts} = useBlogContext();
@@ -36,11 +35,7 @@ export default function Dashboard() {
     if (isFetchingDashData) return;
 
     const toastId = toast.loading("Fetching dashboard");
-    if (!userData) {
-      toast.error("Session expired. Please log in again.", { id: toastId });
-      navigate("/login");
-      return;
-    }
+    console.log(userData);
     try {
       setUser(userData.author);
       setIsAuthenticated(true);
@@ -56,7 +51,6 @@ export default function Dashboard() {
 
   init();
 }, [userData]);
-
 
 
   return (

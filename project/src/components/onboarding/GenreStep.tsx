@@ -1,5 +1,6 @@
 import { Heart } from "lucide-react";
 import { useOnboardingContext } from "../../contexts/OnboardingContext";
+import CSRFToken from "../CSRFToken";
 
 function GenreStep() {
   const {GENRES, profileData, handleGenreToggle} = useOnboardingContext();
@@ -42,6 +43,7 @@ function GenreStep() {
           )}
         </p>
       </div>
+      <CSRFToken />
     </div>
   );
 }

@@ -6,6 +6,7 @@ import {
 } from "../utils/uploadToCloudinary";
 import { CloudinaryUploadResponse } from "../types/types";
 import { useAvatarContext } from "../contexts/AvatarContext";
+import api from "../api";
 
 const useAvatarUpload = (
   initialAvatar: CloudinaryUploadResponse | null = null
@@ -58,10 +59,33 @@ const useAvatarUpload = (
     } catch (err) {
       toast.error("Upload failed", { id: toastId });
       console.error(err);
-      setUploadingAvatar(false);
       throw err;
+    } finally {
+      setUploadingAvatar(false);
     }
   };
+
+  // const handleRemoveAvatar = async () => {
+  //   const toastId = toast.loading("Removing avatar...");
+
+  //   if (!avatar?.public_id) {
+  //     toast.error("No avatar to remove", { id: toastId });
+  //     return;
+  //   }
+
+  //   setUploadingAvatar(true);
+
+  //   try {
+  //     await deleteFromCloudinary(avatar.public_id);
+  //     setAvatar(null);
+  //     toast.success("Avatar removed", { id: toastId });
+  //   } catch (error) {
+  //     console.error("Failed to remove avatar:", error);
+  //     toast.error("Failed to remove avatar", { id: toastId });
+  //   } finally {
+  //     setUploadingAvatar(false);
+  //   }
+  // };
 
   const handleRemoveAvatar = async () => {
     const toastId = toast.loading("Removing avatar...");
@@ -74,7 +98,7 @@ const useAvatarUpload = (
     setUploadingAvatar(true);
 
     try {
-      await deleteFromCloudinary(avatar.public_id);
+      await api.delete(`/delete-avatar/${avatar.public_id}/`);
       setAvatar(null);
       toast.success("Avatar removed", { id: toastId });
     } catch (error) {

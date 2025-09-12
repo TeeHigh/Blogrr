@@ -13,6 +13,7 @@ import AvatarStep from "../components/onboarding/AvatarStep";
 import BioSummaryStep from "../components/onboarding/BioSummaryStep";
 import GenreStep from "../components/onboarding/GenreStep";
 import useAvatarUpload from "../hooks/useAvatarUpload";
+import CSRFToken from "../components/CSRFToken";
 
 
 const NO_OF_STEPS = 4;
@@ -126,6 +127,7 @@ export default function Onboarding() {
         </div>
 
         <div className="bg-white rounded-xl shadow-lg border p-8">
+          <CSRFToken />
           {renderStep()}
 
           {/* Navigation */}

@@ -1,4 +1,3 @@
-import React from 'react'
 import RotatingWords from '../RotatingWords'
 import { Search } from 'lucide-react';
 

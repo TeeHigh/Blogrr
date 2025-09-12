@@ -1,10 +1,21 @@
 import axios from "axios";
+import Cookies from "js-cookie";
 import api from "../api";
 import { RegisterFormData } from "../types/types";
 
 export const loginApi = async (email: string, password: string) => {
+  const config = {
+    headers: {
+      "Accept": "application/json",
+      "Content-Type": "application/json",
+      "X-CSRFToken": Cookies.get("csrftoken") || "",
+    }
+  }
+
+  const body = JSON.stringify({ email, password });
+  
   try {
-    const res = await api.post("/api/login/", { email, password });
+    const res = await api.post("/api/login/", body, config);
     return res.data;
   } catch (err) {
     
@@ -89,3 +100,19 @@ export const sendOtpToEmailApi = async (email: string) => {
     }
   }
 };
+
+
+export const verifyAuthApi = async () => {
+  try{
+    const res = await api.get("/api/verify-auth/");
+    return res.data;
+  }
+  catch(err){
+    if (axios.isAxiosError(err)) {
+      if (err.response?.data?.tags) {
+        throw new Error(err.response.data.tags.join(", "));
+      }
+      throw new Error("Failed to verify authentication");
+    }
+  }
+}

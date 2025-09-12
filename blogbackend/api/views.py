@@ -1,14 +1,16 @@
 import random
 from django.shortcuts import render
-from django.contrib.auth import get_user_model
+from django.contrib import auth
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.core.cache import cache
 from django.conf import settings
+from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
+from django.utils.decorators import method_decorator
 
 from rest_framework import generics, status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 
@@ -16,27 +18,33 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+from api.auth_backends import CookieJWTAuthentication
+
 from .models import Blog
 from .serializers import BlogSerializer, UserSerializer, CustomTokenObtainPairSerializer
 
-User = get_user_model()
+import cloudinary.uploader
 
-def set_cookie(response, key, value, max_age, httponly=True):
-    response.set_cookie(
-        key,
-        value,
-        max_age=max_age,
-        secure=True,             
-        httponly=httponly,       
-        samesite="None",
-        path="/",         
-    )
-    return response
+User = auth.get_user_model()
+
+
+# --------------------- Auth Views ----------------------------
+@method_decorator(ensure_csrf_cookie, name='dispatch')
+class GetCSRFTokenView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        return Response({"message": "CSRF cookie set"})
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
+
+@method_decorator(csrf_protect, name='dispatch')
 class UserRegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -44,71 +52,67 @@ class UserRegisterView(generics.CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
 
-        # Create tokens
-        refresh = RefreshToken.for_user(user)
-        access_token = str(refresh.access_token)
+        try:
+            serializer.is_valid(raise_exception=True)
+            user = serializer.save()
 
-        response = Response(
-            {
-                "user": UserSerializer(user).data,
-                "message": "Registration successful."
-            },
-            status=status.HTTP_201_CREATED
-        )
+            # auth.login(request, user)
 
-        # Set HttpOnly cookies
-        response.set_cookie(
-            key="access_token",
-            value=access_token,
-            httponly=True,
-            secure=False,          # use True in production
-            samesite="None", # Adjusted based on frontend
-            max_age=60 * 10,       # 10 minutes
-        )
-        response.set_cookie(
-            key="refresh_token",
-            value=str(refresh),
-            httponly=True,
-            secure=False,
-            samesite="None",
-            max_age=60 * 60 * 24 * 7,  # 7 days
-        )
+            response = Response(
+                {
+                    "user": UserSerializer(user).data,
+                    "message": "Registration successful."
+                },
+                status=status.HTTP_201_CREATED
+            )
 
-        return response
+            return response
+        except ValidationError as ve:
+            return Response({"error": ve.message_dict}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
+@method_decorator(csrf_protect, name='dispatch')
 class LoginView(generics.CreateAPIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        from django.contrib.auth import authenticate
         email = request.data.get("email")
         password = request.data.get("password")
-        user = authenticate(request, email=email, password=password)
 
-        if not user:
-            return Response({"error": "Invalid credentials"}, status=400)
+        try:
+            user = auth.authenticate(request, email=email, password=password)
 
-        refresh = RefreshToken.for_user(user)
-        access_token = str(refresh.access_token)
+            if not user:
+                return Response({"error": "Invalid credentials"}, status=400)
+            else:
+                auth.login(request, user)
+                response = Response({
+                    "message": "Login successful",
+                    "user": {
+                        "email": user.email,
+                        "isAuthenticated": True,
+                        "username": user.username
+                    }
+                })
 
-        response = Response({"message": "Login successful"})
-        set_cookie(response, "access", access_token, 15*60)
-        set_cookie(response, "refresh", str(refresh), 7*24*60*60)
-        return response
+            return response
+        except:
+            return Response({"error": "Something went wrong while logging in"})
 
 
-class LogoutView(generics.CreateAPIView):
+# @method_decorator(csrf_protect, name='dispatch')
+class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def post(self, request):
-        response = Response({"message": "Logged out"})
-        response.delete_cookie("access")
-        response.delete_cookie("refresh")
-        return response
+    def get(self, request, format=None):
+        try:
+            auth.logout(request)
+            return Response({ 'success': 'Logged Out' })
+        except:
+            return Response({ 'error': 'Something went wrong when logging out' })
 
 
 class RefreshView(generics.CreateAPIView):
@@ -136,13 +140,27 @@ class RefreshView(generics.CreateAPIView):
         except TokenError:
             return Response({"error": "Invalid or expired refresh"}, status=401)
 
-        response = Response({"message": "Token refreshed"})
-        response.set_cookie(
-            "access", new_access,
-            httponly=True, samesite="Lax", secure=False, max_age=15*60
-        )
-        return response
 
+class VerifyAuthView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        user = request.user
+        isAuthenticated = user.is_authenticated
+
+        if isAuthenticated:
+            return Response({
+                "isAuthenticated": True,
+                "user": {
+                    "email": user.email,
+                    "username": user.username
+                }
+            })
+        else:
+            return Response({"isAuthenticated": False})
+
+
+# --------------------- Blog Views ----------------------------
 # Public Blog List view
 class BlogListView(generics.ListAPIView):
     queryset = Blog.objects.filter(status=Blog.Status.PUBLISHED, is_archived=False).order_by('-created_at')
@@ -194,6 +212,7 @@ def check_username(request):
     return Response({"error": "Username not provided"}, status=400)
 
 
+# --------------------- Utility Views ----------------------------
 @api_view(["GET"])
 def check_email_availability(request):
     email = request.GET.get("email", "").strip()
@@ -259,3 +278,22 @@ def verify_otp(request):
 
     return Response({"verified": True})
 
+
+@api_view(["DELETE"])
+@permission_classes([AllowAny])
+def delete_avatar(request, public_id):
+    try:
+        result = cloudinary.uploader.destroy(public_id)
+        return Response(result)
+    except Exception as e:
+        return Response({"error": str(e)}, status=400)
+    
+@api_view(["GET"])
+def get_users(request):
+    users = User.objects.all()
+
+    abstracted_data = [{"email": user.email, "username": user.username, "id": user.id} for user in users]
+
+    return Response(abstracted_data)
+
+    

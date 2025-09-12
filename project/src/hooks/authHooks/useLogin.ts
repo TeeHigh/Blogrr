@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { loginApi } from "../../services/authService";
 import { LoginInput, LoginResponse } from "../../types/types";
 import { AxiosError } from "axios";
@@ -8,7 +8,10 @@ import { useAuth } from "../../contexts/AuthContext";
 
 const useLogin = () => {
   const navigate = useNavigate();
-  const {setIsAuthenticated} = useAuth();
+  const location = useLocation();
+  const from = location?.state?.from?.pathname || "/dashboard";
+  
+  const {setIsAuthenticated, isAuthenticated, setUser} = useAuth();
 
   const {
     mutateAsync: login,
@@ -26,11 +29,10 @@ const useLogin = () => {
       });
     },
     onSuccess: (data) => {
-      setIsAuthenticated(true);
-      
-      console.log(data);
+      setIsAuthenticated(true)
+      setUser(data.user);
       setTimeout(() => {
-        navigate("/dashboard");
+        navigate(from, { replace: true });
       }, 500);
     },
     onError: (error) => {

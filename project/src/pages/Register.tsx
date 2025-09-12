@@ -6,8 +6,6 @@ import { FcGoogle } from "react-icons/fc";
 import { Github } from "lucide-react";
 import useCheckEmailAvailability from "../hooks/authHooks/useCheckEmailAvailability";
 import toast from "react-hot-toast";
-import axios from "axios";
-import { APIError } from "../types/types";
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -97,6 +95,7 @@ export default function Register() {
               onClick={() =>
                 toast("Google sign in not implemented yet", {
                   icon: <FcGoogle className="h-5 w-5" />,
+                  id: "google-signin",
                 })
               }
             >
@@ -112,6 +111,7 @@ export default function Register() {
               onClick={() =>
                 toast("GitHub sign in not implemented yet", {
                   icon: <Github className="h-5 w-5 text-gray-700" />,
+                  id: "github-signin",
                 })
               }
             >
