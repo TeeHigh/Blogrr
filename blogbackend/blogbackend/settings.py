@@ -157,6 +157,21 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
+# CSRF_COOKIE_NAME = "csrftoken"     # matches axios
+# CSRF_COOKIE_HTTPONLY = False       # must be False so JS can read it
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173"
+]
+# CSRF_COOKIE_SAMESITE = "None"   # allow cross-site
+# CSRF_COOKIE_SECURE = True      # True only if using HTTPS in production
+# SESSION_COOKIE_SAMESITE = "None"
+# SESSION_COOKIE_SECURE = False
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173"
+]
+CORS_ALLOW_CREDENTIALS = True
 
 from decouple import config
 

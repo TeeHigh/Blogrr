@@ -8,7 +8,7 @@ export default function useVerifyAuth(){
     retry: 0,
   })
 
-  const isAuthenticated = data ? data.isAuthenticated : false;
+  const isAuthenticated = data && data.isAuthenticated;
 
   return {
     data,

@@ -1,5 +1,3 @@
-//
-
 import { useEffect } from "react";
 import api from "../api"; 
 
@@ -12,6 +10,7 @@ function CSRFToken() {
         console.error("Error ensuring CSRF cookie is set:", error);
       }
     };
+
     fetchCsrf();
   }, []);
 

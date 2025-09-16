@@ -8,7 +8,7 @@ export const loginApi = async (email: string, password: string) => {
     headers: {
       "Accept": "application/json",
       "Content-Type": "application/json",
-      "X-CSRFToken": Cookies.get("csrftoken") || "",
+      "X-CSRFToken": Cookies.get("csrftoken")
     }
   }
 
@@ -43,8 +43,18 @@ export const logoutApi = async () => {
 }
 
 export const registerApi = async (formData: RegisterFormData) => {
+  const config = {
+    headers: {
+      "Accept": "application/json",
+      "Content-Type": "application/json",
+      "X-CSRFToken": Cookies.get("csrftoken") || "",
+    }
+  }
+
+  const body = JSON.stringify(formData);
+
   try {
-    const res = await api.post("/api/user/register/", formData);
+    const res = await api.post("/api/user/register/", body, config);
     return res.data;
   } catch (err) {
     if (axios.isAxiosError(err)) {

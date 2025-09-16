@@ -8,6 +8,6 @@ const api = axios.create({
 
 // Configure Axios to automatically handle CSRF tokens
 api.defaults.xsrfCookieName = "csrftoken";
-api.defaults.xsrfHeaderName = "X-CSRFToken";
+// api.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export default api;
