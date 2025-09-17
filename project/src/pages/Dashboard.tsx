@@ -23,7 +23,7 @@ const Settings = lazy(() => import("../components/dashboard/Settings"));
 export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   
-  const { setUser, setIsAuthenticated } = useAuth();
+  const { setUser } = useAuth();
   const { setAuthorPosts} = useBlogContext();
 
   const { data: userData, isPending: isFetchingDashData } = useUser();
@@ -38,7 +38,6 @@ export default function Dashboard() {
     console.log(userData);
     try {
       setUser(userData.author);
-      setIsAuthenticated(true);
       setAuthorPosts(userData.blogs);
       toast.success("Dashboard loaded", { id: toastId });
     } catch (error) {

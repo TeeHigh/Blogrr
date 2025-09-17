@@ -11,7 +11,7 @@ const useLogin = () => {
   const location = useLocation();
   const from = location?.state?.from?.pathname || "/dashboard";
   
-  const {setIsAuthenticated, isAuthenticated, setUser} = useAuth();
+  const { setUser} = useAuth();
 
   const {
     mutateAsync: login,
@@ -29,7 +29,6 @@ const useLogin = () => {
       });
     },
     onSuccess: (data) => {
-      setIsAuthenticated(true)
       setUser(data.user);
       setTimeout(() => {
         navigate(from, { replace: true });

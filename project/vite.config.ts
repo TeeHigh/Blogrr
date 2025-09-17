@@ -13,4 +13,8 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    outDir: "../blogbackend/frontend_build",
+    emptyOutDir: true,
+  },
 });

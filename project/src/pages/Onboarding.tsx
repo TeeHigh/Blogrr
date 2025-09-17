@@ -14,6 +14,7 @@ import BioSummaryStep from "../components/onboarding/BioSummaryStep";
 import GenreStep from "../components/onboarding/GenreStep";
 import useAvatarUpload from "../hooks/useAvatarUpload";
 import CSRFToken from "../components/CSRFToken";
+import useVerifyAuth from "../hooks/authHooks/useVerifyAuth";
 
 
 const NO_OF_STEPS = 4;
@@ -22,6 +23,8 @@ export default function Onboarding() {
   const { currentStep, profileData, setCurrentStep, handleComplete, loading, errors } =
     useOnboardingContext();
   const { user, emailVerified } = useAuth();
+  const { isAuthenticated } = useVerifyAuth();
+
   const { isPending } = useRegister();
   const { uploadingAvatar } = useAvatarUpload();
   
@@ -29,7 +32,7 @@ export default function Onboarding() {
     return <Navigate to="/register" replace />;
   }
 
-  if (user?.genres && user?.genres.length > 0) {
+  if (isAuthenticated) {
     return <Navigate to="/dashboard" replace />;
   }
 

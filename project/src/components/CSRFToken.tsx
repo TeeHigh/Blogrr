@@ -5,7 +5,9 @@ function CSRFToken() {
   useEffect(() => {
     const fetchCsrf = async () => {
       try {
-        await api.get("/api/get-csrf-token/");
+        await api.get("/api/get-csrf-token/", {
+          withCredentials: true,
+        });
       } catch (error) {
         console.error("Error ensuring CSRF cookie is set:", error);
       }

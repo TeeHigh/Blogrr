@@ -2,16 +2,23 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import api from "../api";
 import { RegisterFormData } from "../types/types";
+import getCsrfToken from "../utils/getCsrfToken";
 
 export const loginApi = async (email: string, password: string) => {
+  const csrftoken = getCsrfToken();
+  // console.log("CSRF Token:", csrftoken);
+  // console.log("Cookies CSRF Token:", Cookies.get("csrftoken"));
+
   const config = {
     headers: {
       "Accept": "application/json",
       "Content-Type": "application/json",
       "X-CSRFToken": Cookies.get("csrftoken")
-    }
+    },
+    withCredentials: true,
   }
 
+  // console.log(Cookies.get('csrftoken'));
   const body = JSON.stringify({ email, password });
   
   try {
@@ -30,7 +37,7 @@ export const loginApi = async (email: string, password: string) => {
 
 export const logoutApi = async () => {
   try {
-    const res = await api.post("/api/logout/");
+    const res = await api.get("/api/logout/");
     return res.data;
   } catch (err) {
     if (axios.isAxiosError(err)) {
@@ -48,7 +55,8 @@ export const registerApi = async (formData: RegisterFormData) => {
       "Accept": "application/json",
       "Content-Type": "application/json",
       "X-CSRFToken": Cookies.get("csrftoken") || "",
-    }
+    },
+    withCredentials: true,
   }
 
   const body = JSON.stringify(formData);
@@ -114,7 +122,7 @@ export const sendOtpToEmailApi = async (email: string) => {
 
 export const verifyAuthApi = async () => {
   try{
-    const res = await api.get("/api/verify-auth/");
+    const res = await api.get("/api/verify-auth/", {withCredentials: true});
     return res.data;
   }
   catch(err){

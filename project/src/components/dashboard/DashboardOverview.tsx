@@ -16,7 +16,6 @@ import useUser from "../../hooks/blogHooks/useUser";
 import OverlayLoader from "../OverlayLoader";
 
 export default function DashboardOverview() {
-  // const {  } = useBlogContext();
   const { user } = useAuth();
 
   const { data, isPending: isFetchingDashData } = useUser();

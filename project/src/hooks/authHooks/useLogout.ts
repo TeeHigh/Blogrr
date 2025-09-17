@@ -1,10 +1,8 @@
 import toast from "react-hot-toast";
 import { logoutApi } from "../../services/authService";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAuth } from "../../contexts/AuthContext";
 
 export default function useLogout() {
-  const {setIsAuthenticated} = useAuth();
 
   const queryClient = useQueryClient();
   const { 
@@ -19,7 +17,6 @@ export default function useLogout() {
       });
     },
     onSuccess: () => {
-      setIsAuthenticated(false);
       queryClient.clear();
       window.location.href = "/";
     },

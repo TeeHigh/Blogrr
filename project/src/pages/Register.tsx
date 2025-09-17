@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { Navigate, Link, useNavigate } from "react-router-dom";
 
-import { useAuth } from "../contexts/AuthContext";
 import { FcGoogle } from "react-icons/fc";
 import { Github } from "lucide-react";
 import useCheckEmailAvailability from "../hooks/authHooks/useCheckEmailAvailability";
 import toast from "react-hot-toast";
+import useVerifyAuth from "../hooks/authHooks/useVerifyAuth";
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -15,12 +15,13 @@ export default function Register() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
 
-  const { user } = useAuth();
+  const { isAuthenticated } = useVerifyAuth();
   const { isPending, isError, checkEmailAvailability } =
     useCheckEmailAvailability();
+    
   const navigate = useNavigate();
 
-  if (user) {
+  if (isAuthenticated) {
     return <Navigate to="/dashboard" replace />;
   }
 

@@ -67,7 +67,7 @@ function App() {
               <AvatarProvider>
                 <OnboardingProvider>
                   <Toaster position="top-center" />
-                  <CSRFToken /> 
+                  {/* <CSRFToken />  */}
                   <AppRouter />
                 </OnboardingProvider>
               </AvatarProvider>

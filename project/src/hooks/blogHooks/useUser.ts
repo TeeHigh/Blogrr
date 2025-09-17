@@ -5,7 +5,7 @@ export default function useUser(){
   const { data, isPending, error } = useQuery({
     queryKey: ["user"],
     queryFn: fetchUser,
-    retry: 1,
+    retry: 0,
     refetchOnWindowFocus: false,
   });
 

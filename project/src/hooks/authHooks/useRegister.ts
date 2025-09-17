@@ -1,17 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
 import { registerApi } from "../../services/authService";
-import { useAuth } from "../../contexts/AuthContext";
 import { RegisterFormData, RegisterResponse } from "../../types/types";
 import { AxiosError } from "axios";
 import toast from "react-hot-toast";
 
 const useRegister = () => {
-  const {
-    // emailVerified,
-    // setUser,
-    // setIsAuthenticated,
-    // setOnboardingComplete,
-  } = useAuth();
 
   const {
   mutateAsync: registerUser,
