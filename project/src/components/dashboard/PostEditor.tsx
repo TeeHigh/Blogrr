@@ -26,6 +26,7 @@ import useSingleBlog from "../../hooks/blogHooks/useSingleBlog";
 
 import OverlayLoader from "../OverlayLoader";
 import Tiptap from "./editor-components/Tiptap";
+import { stripHtml } from "../../utils/stripHtml";
 
 export default function PostEditor({
   mode = "create",
@@ -199,7 +200,7 @@ export default function PostEditor({
     const post = {
       title: title.trim(),
       content: content.trim(),
-      excerpt: excerpt.trim() || content.trim().substring(0, 150) + "...",
+      excerpt: excerpt.trim() || stripHtml(content).trim().substring(0, 150) + "...",
       author: user?.fullname || "Anonymous",
       tags,
       readTime: calculateReadTime(content),

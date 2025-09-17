@@ -27,10 +27,10 @@ urlpatterns = [
     path('api/auth/', include('rest_framework.urls')),  # Include the default auth URLs
 
     path('api/user/register/', UserRegisterView.as_view(), name='user-register'),  # URL for user registration
-    path("api/login/", LoginView.as_view(), name="login_user"),
-    path("api/logout/", LogoutView.as_view(), name="logout_user"),
-    path('api/delete-account/', DeleteAccountView.as_view(), name='delete-account'),
-    path("api/refresh/", RefreshView.as_view(), name="token_refresh"),
+    path("api/user/login/", LoginView.as_view(), name="login_user"),
+    path("api/user/logout/", LogoutView.as_view(), name="logout_user"),
+    path('api/user/delete-account/', DeleteAccountView.as_view(), name='delete-account'),
+    # path("api/refresh/", RefreshView.as_view(), name="token_refresh"),
 
     path('api/', include('api.urls')),  # Include the URLs your API app
     

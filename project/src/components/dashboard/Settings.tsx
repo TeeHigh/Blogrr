@@ -16,11 +16,10 @@ import {
   Globe,
 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
-import Header from "../Header";
-import { defaultAvatar } from "../../constants/defaultAvatar";
-import AvatarUpload from "../AvatarUpload";
-import useUser from "../../hooks/blogHooks/useUser";
+
 import { CloudinaryUploadResponse } from "../../types/types";
+import useDeleteAccount from "../../hooks/accountHooks/useDeleteAccount";
+import AvatarUpload from "../AvatarUpload";
 
 const SAMPLE_AVATARS = [
   "https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=150",
@@ -32,7 +31,8 @@ const SAMPLE_AVATARS = [
 ];
 
 export default function Settings() {
-  const { user, updateProfile, logout } = useAuth();
+  const { user } = useAuth();
+  const { deleteAccount } = useDeleteAccount();
 
   // const { data: user } = useUser();
   const navigate = useNavigate();
@@ -81,7 +81,7 @@ export default function Settings() {
   const handleProfileSave = async () => {
     setSaving(true);
     try {
-      await updateProfile(profileData);
+      // await updateProfile(profileData);
       // Show success message
     } catch (error) {
       console.error("Failed to update profile:", error);
@@ -112,17 +112,9 @@ export default function Settings() {
     }
   };
 
-  const handleDeleteAccount = async () => {
-    if (confirm("Are you absolutely sure? This action cannot be undone.")) {
-      try {
-        // In a real app, this would call an API to delete the account
-        logout();
-        navigate("/");
-      } catch (error) {
-        console.error("Failed to delete account:", error);
-      }
-    }
-  };
+  const handleDeleteAccount = () => {
+    deleteAccount();
+  }
 
   const renderTabContent = () => {
     switch (activeTab) {

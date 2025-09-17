@@ -22,7 +22,7 @@ export const loginApi = async (email: string, password: string) => {
   const body = JSON.stringify({ email, password });
   
   try {
-    const res = await api.post("/api/login/", body, config);
+    const res = await api.post("/api/user/login/", body, config);
     return res.data;
   } catch (err) {
     
@@ -37,7 +37,7 @@ export const loginApi = async (email: string, password: string) => {
 
 export const logoutApi = async () => {
   try {
-    const res = await api.get("/api/logout/");
+    const res = await api.get("/api/user/logout/");
     return res.data;
   } catch (err) {
     if (axios.isAxiosError(err)) {

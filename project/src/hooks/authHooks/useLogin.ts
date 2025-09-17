@@ -30,9 +30,10 @@ const useLogin = () => {
     },
     onSuccess: (data) => {
       setUser(data.user);
-      setTimeout(() => {
-        navigate(from, { replace: true });
-      }, 500);
+      window.location.href = from;
+      // setTimeout(() => {
+      //   navigate(from, { replace: true });
+      // }, 500);
     },
     onError: (error) => {
       console.error(error.message);

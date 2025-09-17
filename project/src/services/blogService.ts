@@ -1,6 +1,16 @@
 import axios, { AxiosError } from "axios";
+import Cookies from "js-cookie";
 import api from "../api";
 import { BlogPost } from "../types/types";
+
+const config = {
+  headers: {
+    Accept: "application/json",
+    "Content-Type": "application/json",
+    "X-CSRFToken": Cookies.get("csrftoken") || "",
+  },
+  withCredentials: true,
+};
 
 export async function getDashboardData() {
   try {
@@ -20,7 +30,7 @@ export const getAllBlogsApi = async () => {
     console.error("Error fetching blogs:", error);
     throw error;
   }
-}
+};
 
 export async function getBlogByIdApi(id: string) {
   try {
@@ -38,38 +48,38 @@ export async function getBlogByIdApi(id: string) {
   }
 }
 
-export async function getPublishedBlogsApi(){
-  try{
+export async function getPublishedBlogsApi() {
+  try {
     const response = await api.get("/api/posts/");
     return response.data;
-  }catch(err){
+  } catch (err) {
     console.error("Error fetching blogs", err);
     throw new Error("Error fetching blogs");
   }
 }
 
-export async function createBlogApi(data: Omit<BlogPost, "author_avatar" | "id">) {
+export async function createBlogApi(
+  data: Omit<BlogPost, "author_avatar" | "id">
+) {
   try {
-    const response = await api.post("/api/blog/create/", data);
+    const response = await api.post("/api/blog/create/", data, config);
     return response.data;
-  }
-  catch(err){
-    if(axios.isAxiosError(err)){
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
       if (err.response?.data?.tags) {
-      throw new Error(err.response.data.tags.join(", "));
-    }
-    throw new Error("Failed to create blog post");
+        throw new Error(err.response.data.tags.join(", "));
+      }
+      throw new Error("Failed to create blog post");
     }
   }
 }
 
 export async function updateBlogApi(id: string, data: Partial<BlogPost>) {
-  try{
-    const response = await api.patch(`/api/post/${id}/`, data);
+  try {
+    const response = await api.patch(`/api/post/${id}/`, data, config);
     return response.data;
-  }
-  catch(err){
-    if(axios.isAxiosError(err)){
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
       if (err.response?.data?.tags) {
         throw new Error(err.response.data.tags.join(", "));
       }
@@ -78,13 +88,12 @@ export async function updateBlogApi(id: string, data: Partial<BlogPost>) {
   }
 }
 
-export async function deleteBlogApi(id: string){
-  try{
-    const response = await api.delete(`/api/post/${id}/`);
+export async function deleteBlogApi(id: string) {
+  try {
+    const response = await api.delete(`/api/post/${id}/`, config);
     return response.data;
-  }
-  catch(err){
-    if(axios.isAxiosError(err)){
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
       if (err.response?.data?.tags) {
         throw new Error(err.response.data.tags.join(", "));
       }

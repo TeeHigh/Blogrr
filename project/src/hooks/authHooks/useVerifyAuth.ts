@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { verifyAuthApi } from "../../services/authService";
 
 export default function useVerifyAuth(){
-  const { data, isPending: isVerifyingAuth, isError } = useQuery({
+  const { data, isPending: isVerifyingAuth } = useQuery({
   queryKey: ["verify-auth"],
   queryFn: verifyAuthApi,
   retry: 1,

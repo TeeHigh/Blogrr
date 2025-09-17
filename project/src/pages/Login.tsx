@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import { Navigate, useLocation, Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import useLogin from "../hooks/authHooks/useLogin.ts";
-import { useAuth } from "../contexts/AuthContext";
 import axios, { AxiosError } from "axios";
 import { APIError } from "../types/types.ts";
 import CSRFToken from "../components/CSRFToken.tsx";
+import useVerifyAuth from "../hooks/authHooks/useVerifyAuth.ts";
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -16,13 +16,13 @@ export default function Login() {
 
   const location = useLocation();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { isAuthenticated } = useVerifyAuth();
 
   const { login, isPending, isError, error } = useLogin();
 
   const from = location.state?.from?.pathname || "/dashboard";
 
-  if (user) {
+  if (isAuthenticated) {
     return <Navigate to={from} replace />;
   }
 
@@ -76,6 +76,7 @@ export default function Login() {
                   name="email"
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary-light focus:border-transparent outline-none"
                   placeholder="Enter your email"
+                  autoComplete="email"
                   required
                 />
               </div>
