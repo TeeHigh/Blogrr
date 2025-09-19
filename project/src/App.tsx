@@ -30,6 +30,7 @@ import { OnboardingProvider } from "./contexts/OnboardingContext";
 import { AvatarProvider } from "./contexts/AvatarContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import CSRFToken from "./components/CSRFToken";
+import { SettingsProvider } from "./contexts/SettingsContext";
 
 function AppRouter() {
   return (
@@ -42,13 +43,12 @@ function AppRouter() {
           <Route path="/register" element={<Register />} />
           <Route path="/verify-email" element={<EmailVerification />} />
           <Route path="/onboarding" element={<Onboarding />} />
-          
+
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard/*" element={<Dashboard />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />
-
         </Routes>
       </Suspense>
     </Router>
@@ -64,13 +64,15 @@ function App() {
         <ModalsProvider>
           <AuthProvider>
             <BlogProvider>
-              <AvatarProvider>
-                <OnboardingProvider>
-                  <Toaster position="top-center" />
-                  {/* <CSRFToken />  */}
-                  <AppRouter />
-                </OnboardingProvider>
-              </AvatarProvider>
+              <SettingsProvider>
+                <AvatarProvider>
+                  <OnboardingProvider>
+                    <Toaster position="top-center" />
+                    {/* <CSRFToken />  */}
+                    <AppRouter />
+                  </OnboardingProvider>
+                </AvatarProvider>
+              </SettingsProvider>
             </BlogProvider>
           </AuthProvider>
         </ModalsProvider>

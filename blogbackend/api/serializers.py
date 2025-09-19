@@ -54,6 +54,16 @@ class UserSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
+class UpdateUserSerializer(serializers.ModelSerializer):
+    fullname = serializers.CharField(source="full_name", required=False)
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'fullname', 'avatar', 'bio', 'genres']
+        extra_kwargs = {
+            'username': {'required': False},
+            'email': {'required': False},
+        }
 
 class BlogSerializer(serializers.ModelSerializer):
     author = serializers.SerializerMethodField()

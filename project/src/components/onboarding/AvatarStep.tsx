@@ -9,7 +9,10 @@ function AvatarStep() {
   const {profileData, setProfileData} = useOnboardingContext();
   const {showUploadOptions, setShowUploadOptions} = useAvatarContext();
 
-  const { avatar  } = useAvatarUpload();
+  const { avatar } = useAvatarUpload();
+  const avatarData = useAvatarUpload();
+
+  console.log(avatarData);
 
   return (
     <div className="text-center space-y-6">

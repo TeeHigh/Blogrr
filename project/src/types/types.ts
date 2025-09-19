@@ -85,7 +85,7 @@ export type CloudinaryUploadResponse = {
   api_key?: string;
 };
 
-export interface DashboardResponse{
+export interface DashboardResponse {
   author: User;
   blogs: BlogPost[];
   // comments: Comment[];
@@ -110,7 +110,7 @@ export interface BlogPost {
   excerpt: string;
   author: string;
   author_avatar: CloudinaryUploadResponse | null;
-  created_at?: string;  
+  created_at?: string;
   updated_at?: string;
   published_at?: string | null;
   tags: string[];
@@ -124,4 +124,11 @@ export interface DashboardStat {
   value: string;
   icon: LucideIcon | any;
   color: string;
+}
+
+export interface ProfileSettingsFormData {
+  fullname: string;
+  email: string;
+  bio: string;
+  avatar: string | CloudinaryUploadResponse;
 }

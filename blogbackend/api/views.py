@@ -24,7 +24,7 @@ from rest_framework.views import APIView
 from api.auth_backends import CookieJWTAuthentication
 
 from .models import Blog
-from .serializers import BlogSerializer, UserSerializer, CustomTokenObtainPairSerializer
+from .serializers import BlogSerializer, UserSerializer, CustomTokenObtainPairSerializer, UpdateUserSerializer
 
 import cloudinary.uploader
 
@@ -173,21 +173,11 @@ class DeleteAccountView(APIView):
 
 # --------------------- Profile Views ----------------------------
 class UpdateProfileView(generics.UpdateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = UpdateUserSerializer
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
         return self.request.user
-
-    def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-
-        return Response(serializer.data)
 
 
 # --------------------- Blog Views ----------------------------

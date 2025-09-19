@@ -7,6 +7,7 @@ import {
 import { CloudinaryUploadResponse } from "../types/types";
 import { useAvatarContext } from "../contexts/AvatarContext";
 import api from "../api";
+import useDeleteAvatar from "./accountHooks/useDeleteAvatar";
 
 const useAvatarUpload = (
   initialAvatar: CloudinaryUploadResponse | null = null
@@ -15,6 +16,7 @@ const useAvatarUpload = (
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   const { setShowUploadOptions } = useAvatarContext();
+  const { deleteAvatar, isAvatarDeleted } = useDeleteAvatar();
 
   useEffect(() => {
     if (initialAvatar) {
@@ -46,6 +48,9 @@ const useAvatarUpload = (
 
     try {
       // Make sure uploadToCloudinary returns CloudinaryUploadResponse
+
+      // deleteAvatar(avatar.public_id);
+
       const res = await uploadToCloudinary(file);
 
       console.log(res);
@@ -98,14 +103,17 @@ const useAvatarUpload = (
     setUploadingAvatar(true);
 
     try {
-      await api.delete(`/delete-avatar/${avatar.public_id}/`);
-      setAvatar(null);
-      toast.success("Avatar removed", { id: toastId });
+      deleteAvatar(avatar.public_id);
+      if (isAvatarDeleted) {
+        setAvatar(null);
+        toast.success("Avatar removed", { id: toastId });
+      }
     } catch (error) {
       console.error("Failed to remove avatar:", error);
       toast.error("Failed to remove avatar", { id: toastId });
     } finally {
       setUploadingAvatar(false);
+      toast.dismiss(toastId);
     }
   };
 

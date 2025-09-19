@@ -21,10 +21,7 @@ const useRegister = () => {
   }),
   onSuccess: (data) => {
     console.log(data);
-    // setUser(data.user);
-    // setIsAuthenticated(true);
-    // setOnboardingComplete(!!data.user.fullname && emailVerified);
-    window.location.href = "/dashboard";
+    window.location.href = "/login";
   },
   onError: (err) =>{
     console.error(err.message);
