@@ -63,8 +63,6 @@ const Tiptap = ({content, setContent}: TiptapProps) => {
       TextAlign.configure({ types: ["heading", "paragraph"] }),
     ],
     onUpdate: ({ editor }) => {
-      console.log("Editor content updated:", editor);
-      console.log("Editor Text:", editor.getText());
       const content = editor.getHTML();
       setContent(content);
     },

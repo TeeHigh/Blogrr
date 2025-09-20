@@ -35,7 +35,7 @@ export default function Dashboard() {
     if (isFetchingDashData) return;
 
     const toastId = toast.loading("Fetching dashboard");
-    console.log(userData);
+    
     try {
       setUser(userData.author);
       setAuthorPosts(userData.blogs);

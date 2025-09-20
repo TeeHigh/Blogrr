@@ -160,15 +160,24 @@ class VerifyAuthView(APIView):
             return Response({"isAuthenticated": False})
 
 class DeleteAccountView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def delete(self, request, format=None):
-        user = self.request.user
+        user = request.user
 
         try:
-            User.objects.filter(id=user.id).delete()
+            # If user has an avatar, delete it from Cloudinary
+            if user.avatar and isinstance(user.avatar, dict):
+                public_id = user.avatar.get("public_id")
+                if public_id:
+                    cloudinary.uploader.destroy(public_id)
 
-            return Response({ 'success': 'User deleted successfully' })
-        except:
-            return Response({ 'error': 'Something went wrong when trying to delete user' })
+            # Delete the user from the database
+            user.delete()
+
+            return Response({'success': 'User deleted successfully'})
+        except Exception as e:
+            return Response({'error': f'Something went wrong: {str(e)}'}, status=500)
 
 
 # --------------------- Profile Views ----------------------------
@@ -299,7 +308,7 @@ def verify_otp(request):
     return Response({"verified": True})
 
 
-@api_view(["DELETE"])
+@api_view(["GET"])
 @permission_classes([AllowAny])
 def delete_avatar(request, public_id):
     try:

@@ -8,7 +8,6 @@ export default function ProtectedRoute() {
   const { isVerifyingAuth = true, isAuthenticated = false } = useVerifyAuth();
 
   if (isVerifyingAuth) return <OverlayLoader />;
-  console.log(isAuthenticated);
 
   if (!isAuthenticated && location.pathname !== "/login") {
     return <Navigate to="/login" state={{ from: location }} replace />;
