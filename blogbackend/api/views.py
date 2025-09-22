@@ -5,11 +5,13 @@ from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.core.cache import cache
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.conf import settings
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from django.utils.decorators import method_decorator
+from django.db.models import Q
 
-from rest_framework import generics, status
+from rest_framework import generics, status, pagination
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
@@ -201,13 +203,47 @@ class AuthorDashboardView(generics.ListAPIView):
 
     def get(self, request):
         user = request.user
-        blogs = Blog.objects.filter(author=user).order_by('-created_at')
-        blog_data = BlogSerializer(blogs, many=True).data
+
+        all_blogs =  Blog.objects.filter(author=user)
+
+        totalPosts = all_blogs.count()
+        publishedPosts = all_blogs.filter(status=Blog.Status.PUBLISHED).count()
+        draftPosts = all_blogs.filter(status=Blog.Status.DRAFT).count()
+
+        recentBlogs = all_blogs.order_by('-created_at')[:5].values("id", "title", "status", "published_at", "created_at")
 
         return Response({
             "author": UserSerializer(user).data,
-            "blogs": blog_data
+            "total_posts": totalPosts,
+            "published_posts": publishedPosts,
+            "draft_posts": draftPosts,
+            "recent_blogs": recentBlogs
         })
+
+
+class BlogPagination(pagination.PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+
+class DashboardBlogListView(generics.ListAPIView):
+    serializer_class = BlogSerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = BlogPagination
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = Blog.objects.filter(author=user).order_by('-created_at')
+
+        search_term = self.request.query_params.get('search', None)
+
+        if search_term:
+            queryset = queryset.filter(
+                Q(title__icontains=search_term) |
+                Q(content__icontains=search_term) |
+                Q(status__iexact=search_term)
+            )
+
+        return queryset
 
 
 class CreateListBlogsView(generics.ListCreateAPIView):

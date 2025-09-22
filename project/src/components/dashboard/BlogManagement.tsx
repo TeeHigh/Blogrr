@@ -1,56 +1,76 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { Pagination } from "@mantine/core";
 import { Plus, Search, Filter } from "lucide-react";
 import { useBlogContext } from "../../contexts/BlogContext";
 import PostList from "./blog-management/PostList";
-import useUser from "../../hooks/blogHooks/useUser";
 import OverlayLoader from "../OverlayLoader";
 import { BlogPost } from "../../types/types";
 
-import { modals } from '@mantine/modals';
+import { modals } from "@mantine/modals";
 import { Text } from "@mantine/core";
+import useDashboardPosts from "../../hooks/dashboardHooks/useDashboardPosts";
 
 export default function BlogManagement() {
-  const {
-    useDeleteBlog,
-    setEditingBlog,
-  } = useBlogContext();
+  const { useDeleteBlog, setEditingBlog } = useBlogContext();
   const { mutate: deletePost } = useDeleteBlog();
-
-  const { data: userData = [], isPending: isFetchingDashData } = useUser();
-  if (isFetchingDashData) return <OverlayLoader />;
-
-  const userPosts = userData?.blogs || [];
-
+  
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<
-    "all" | "published" | "draft"
+  "all" | "published" | "draft"
   >("all");
+  const navigate = useNavigate();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const currentPage = parseInt(searchParams.get("page") ?? "1") || 1;
+  
+  const {
+    data: dashboardPosts = { results: [] },
+    isFetching: isFetchingDashPost,
+  } = useDashboardPosts(currentPage, searchTerm, filterStatus);
 
-  const filteredPosts = userPosts.filter((post: BlogPost) => {
-    const matchesSearch =
-      post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      post.content.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter =
-      filterStatus === "all" || post.status === filterStatus;
-    return matchesSearch && matchesFilter;
-  });
+  const PAGE_SIZE = 10;
+  const totalPages = Math.ceil(dashboardPosts.count / PAGE_SIZE);
+  const firstItemIndex = (currentPage - 1) * PAGE_SIZE + 1;
+  const lastItemIndex = Math.min(firstItemIndex + PAGE_SIZE - 1, dashboardPosts.count);
+
+
+  const handlePageChange = (newPage: string) => {
+    searchParams.set("page", newPage);
+    navigate({
+      pathname: location.pathname,
+      search: searchParams.toString(),
+    });
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    handlePageChange("1");
+  };
+
+  const handleStatusFilter = (status: string) => {
+    setFilterStatus(status as "all" | "published" | "draft");
+    handlePageChange("1");
+  }
+
+  if (isFetchingDashPost) return <OverlayLoader />;
 
   const openDeleteModal = (id: string) => {
     modals.openConfirmModal({
-      title: 'Delete blog post',
+      title: "Delete blog post",
       centered: true,
       children: (
         <Text size="sm">
-          Are you sure you want to delete this post? This action is destructive and cannot be undone.
+          Are you sure you want to delete this post? This action is destructive
+          and cannot be undone.
         </Text>
       ),
-      labels: { confirm: 'Delete post', cancel: "No don't delete it" },
-      confirmProps: { color: 'red' },
-      onCancel: () => console.log('Cancel'),
+      labels: { confirm: "Delete post", cancel: "No don't delete it" },
+      confirmProps: { color: "red" },
+      onCancel: () => console.log("Cancel"),
       onConfirm: () => deletePost(id),
-    })
-  }
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -99,10 +119,10 @@ export default function BlogManagement() {
       </div>
 
       {/* Posts List */}
-      <div className="bg-white rounded-lg shadow-sm border">
-        {filteredPosts.length > 0 ? (
+      <div className="bg-white rounded-lg shadow-sm border overflow-y-auto">
+        {dashboardPosts.results.length > 0 ?(
           <div className="divide-y divide-gray-200">
-            {filteredPosts.map((post: BlogPost) => (
+            {dashboardPosts.results.map((post: BlogPost) => (
               <PostList
                 key={post.id}
                 post={post}
@@ -134,6 +154,23 @@ export default function BlogManagement() {
               </Link>
             </div>
           </div>
+        )}
+      </div>
+      <div className="flex justify-center items-center gap-6">
+        <p className="text-gray-500 text-sm">{`Showing page ${currentPage} of ${totalPages}`}</p>
+        <Pagination
+          total={totalPages}
+          display={"flex"}
+          value={currentPage}
+          onChange={(page) => {
+            console.log("Change to page:", page);
+            handlePageChange(page.toString());
+          }}
+        />
+        {dashboardPosts.count && (
+          <p className="text-gray-500 text-sm">
+            {`Showing ${firstItemIndex} to ${lastItemIndex} of ${dashboardPosts.count} posts`}{" "}
+          </p>
         )}
       </div>
     </div>

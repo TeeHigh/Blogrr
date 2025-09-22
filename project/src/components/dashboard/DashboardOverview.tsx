@@ -12,7 +12,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { BlogPost, DashboardStat } from "../../types/types";
 import DashboardStats from "./dashboard-components/DashboardStats";
 import { formatDistanceToNow } from "date-fns";
-import useUser from "../../hooks/blogHooks/useUser";
+import useUser from "../../hooks/dashboardHooks/useUser";
 import OverlayLoader from "../OverlayLoader";
 
 export default function DashboardOverview() {
@@ -24,7 +24,7 @@ export default function DashboardOverview() {
 
   if (!data) return;
 
-  const authorPosts = data?.blogs;
+  const authorPosts = data?.recent_blogs;
 
   const publishedPosts = authorPosts.filter(
     (post: BlogPost) => post.status === "published"
@@ -34,19 +34,19 @@ export default function DashboardOverview() {
   const stats: DashboardStat[] = [
     {
       name: "Total Posts",
-      value: authorPosts.length.toString(),
+      value: data.total_posts,
       icon: FileText,
       color: "bg-blue-500",
     },
     {
       name: "Published",
-      value: publishedPosts.length.toString(),
+      value: data.published_posts,
       icon: Eye,
       color: "bg-green-500",
     },
     {
       name: "Drafts",
-      value: draftPosts.length.toString(),
+      value: data.draft_posts,
       icon: Clock,
       color: "bg-yellow-500",
     },
@@ -101,7 +101,7 @@ export default function DashboardOverview() {
         <div className="p-6">
           {authorPosts.length > 0 ? (
             <div className="space-y-4">
-              {authorPosts.slice(0, 5).map((post: BlogPost) => (
+              {authorPosts.map((post: BlogPost) => (
                 <div
                   key={post.id}
                   className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"

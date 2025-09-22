@@ -8,6 +8,7 @@ urlpatterns = [
   path('user/update-profile/', views.UpdateProfileView.as_view(), name='update-profile'),
 
   path("dashboard/", views.AuthorDashboardView.as_view(), name="author-dashboard"),
+  path("dashboard/posts/", views.DashboardBlogListView.as_view(), name="dashboard-posts"),
   path('posts/', views.BlogListView.as_view(), name='blog-list'),
   path('blog/create/', views.CreateListBlogsView.as_view(), name='create-blog'),
   path('post/<uuid:pk>/', views.BlogDetailView.as_view(), name='delete-blog'),

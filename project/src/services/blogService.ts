@@ -12,15 +12,15 @@ const config = {
   withCredentials: true,
 };
 
-export async function getDashboardData() {
-  try {
-    const response = await api.get("/api/dashboard/");
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching dashboard data:", error);
-    throw error;
-  }
-}
+// export async function getDashboardData() {
+//   try {
+//     const response = await api.get("/api/dashboard/");
+//     return response.data;
+//   } catch (error) {
+//     console.error("Error fetching dashboard data:", error);
+//     throw error;
+//   }
+// }
 
 export const getAllBlogsApi = async () => {
   try {
@@ -76,7 +76,7 @@ export async function createBlogApi(
 
 export async function updateBlogApi(id: string, data: Partial<BlogPost>) {
   try {
-    const response = await api.patch(`/api/post/${id}/`, data, config);
+    const response = await api.put(`/api/post/${id}/`, data, config);
     return response.data;
   } catch (err) {
     if (axios.isAxiosError(err)) {

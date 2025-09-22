@@ -87,7 +87,17 @@ export type CloudinaryUploadResponse = {
 
 export interface DashboardResponse {
   author: User;
-  blogs: BlogPost[];
+  total_posts: number;
+  published_posts: number;
+  draft_posts: number;
+  recent_blogs: BlogPost[];
+  // followers: Follower[];
+  // following: Following[];
+  // posts: Post[];
+  // categories: Category[];
+  // tags: Tag[];
+  // views: View[];
+  // shares: Share[];
   // comments: Comment[];
   // likes: Like[];
 }

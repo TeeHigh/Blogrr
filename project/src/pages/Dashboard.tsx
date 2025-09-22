@@ -6,7 +6,7 @@ import { useAuth } from "../contexts/AuthContext";
 import toast from "react-hot-toast";
 import { useBlogContext } from "../contexts/BlogContext";
 import OverlayLoader from "../components/OverlayLoader";
-import useUser from "../hooks/blogHooks/useUser";
+import useUser from "../hooks/dashboardHooks/useUser";
 import { clear } from "console";
 
 // Lazy-loaded components

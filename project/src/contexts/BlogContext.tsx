@@ -15,7 +15,7 @@ import {
 import { createContext, useContext, useState } from "react";
 import toast from "react-hot-toast";
 import { BlogPost, DashboardResponse, User } from "../types/types";
-import { fetchUser } from "../services/fetchDashboardData";
+import { fetchUserDashboard } from "../services/dashboardService";
 import { queryKeys } from "../constants/queryKeys";
 // import useCreateBlog from "../hooks/blogHooks/useCreateBlog";
 
@@ -24,7 +24,7 @@ type BlogContextType = {
   setAuthorPosts: React.Dispatch<React.SetStateAction<BlogPost[]>>;
   editingBlog: BlogPost | null;
   setEditingBlog: React.Dispatch<React.SetStateAction<BlogPost | null>>;
-  useUser: () => ReturnType<typeof useQuery<DashboardResponse>>;
+  useUserDashboard: () => ReturnType<typeof useQuery<DashboardResponse>>;
   useBlogs: () => ReturnType<typeof useQuery<BlogPost[]>>;
   usePublishedBlogs: () => ReturnType<typeof useQuery<BlogPost[]>>;
   useSingleBlog: (id: string) => ReturnType<typeof useQuery<BlogPost>>;
@@ -51,10 +51,10 @@ export const BlogProvider = ({ children }: { children: React.ReactNode }) => {
   const [editingBlog, setEditingBlog] = useState<BlogPost | null>(null);
 
   // Queries
-  const useUser = () =>
+  const useUserDashboard = () =>
     useQuery<DashboardResponse>({
       queryKey: ["user"],
-      queryFn: fetchUser,
+      queryFn: fetchUserDashboard,
       staleTime: 5 * 60 * 1000,
       retry: 1,
     });
@@ -148,7 +148,7 @@ export const BlogProvider = ({ children }: { children: React.ReactNode }) => {
         setAuthorPosts,
         editingBlog,
         setEditingBlog,
-        useUser,
+        useUserDashboard,
         useBlogs,
         usePublishedBlogs,
         useSingleBlog,

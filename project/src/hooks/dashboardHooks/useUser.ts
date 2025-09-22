@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchUser } from "../../services/fetchDashboardData";
+import { fetchUserDashboard } from "../../services/dashboardService";
 
 export default function useUser(){
   const { data, isPending, error } = useQuery({
     queryKey: ["user"],
-    queryFn: fetchUser,
+    queryFn: fetchUserDashboard,
     retry: 0,
     refetchOnWindowFocus: false,
   });
