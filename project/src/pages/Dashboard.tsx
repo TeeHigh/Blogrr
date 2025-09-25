@@ -28,7 +28,6 @@ export default function Dashboard() {
 
   const { data: userData, isPending: isFetchingDashData } = useUser();
 
-
   // Fetch user data on mount
   useEffect(() => {
   const init = async () => {

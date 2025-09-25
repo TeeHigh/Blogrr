@@ -5,11 +5,11 @@ from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.core.cache import cache
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.conf import settings
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from django.utils.decorators import method_decorator
-from django.db.models import Q
+from django.db.models import Q, Value, IntegerField, Case, When
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from rest_framework import generics, status, pagination
 from rest_framework.decorators import api_view, permission_classes
@@ -23,7 +23,7 @@ from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
-from api.auth_backends import CookieJWTAuthentication
+from api.auth_backends import BlogCursorPagination
 
 from .models import Blog
 from .serializers import BlogSerializer, UserSerializer, CustomTokenObtainPairSerializer, UpdateUserSerializer
@@ -194,9 +194,31 @@ class UpdateProfileView(generics.UpdateAPIView):
 # --------------------- Blog Views ----------------------------
 # Public Blog List view
 class BlogListView(generics.ListAPIView):
-    queryset = Blog.objects.filter(status=Blog.Status.PUBLISHED, is_archived=False).order_by('-created_at')
     serializer_class = BlogSerializer
-    permission_classes = [AllowAny]  # Allow any user to view the list of blogs
+    permission_classes = [AllowAny]
+    pagination_class = BlogCursorPagination
+
+    def get_queryset(self):
+        user = self.request.user
+        base_qs = Blog.objects.filter(
+            status=Blog.Status.PUBLISHED, 
+            is_archived=False
+        )
+
+        if user.is_authenticated:
+            user_genres = user.genres
+            if user_genres:
+                qs = base_qs.annotate(
+                    priority=Case(
+                        When(tags__in=user_genres, then=Value(1)),
+                        default=Value(0),
+                        output_field=IntegerField(),
+                    )
+                ).order_by("-priority", "-created_at").distinct()
+                return qs
+
+        # default: just return published blogs ordered by date
+        return base_qs.order_by("-created_at")
 
 class AuthorDashboardView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
@@ -225,6 +247,30 @@ class BlogPagination(pagination.PageNumberPagination):
     page_size = 10
     page_size_query_param = 'page_size'
 
+    def paginate_queryset(self, queryset, request, view=None):
+        page_size = self.get_page_size(request)
+        if not page_size:
+            return None
+
+        paginator = Paginator(queryset, page_size)
+        page_number = request.query_params.get(self.page_query_param, 1)
+
+        try:
+            self.page = paginator.page(page_number)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            self.page = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range, deliver last page of results.
+            self.page = paginator.page(paginator.num_pages)
+
+        if paginator.num_pages > 1:
+            self.display_page_controls = True
+
+        self.request = request
+        return list(self.page)
+
+
 class DashboardBlogListView(generics.ListAPIView):
     serializer_class = BlogSerializer
     permission_classes = [IsAuthenticated]
@@ -243,13 +289,17 @@ class DashboardBlogListView(generics.ListAPIView):
                 Q(status__iexact=search_term)
             )
 
+        status_filter = self.request.query_params.get('status', None)
+        
+        if status_filter in ['published', 'draft']:
+            queryset = queryset.filter(status=status_filter)
         return queryset
 
 
 class CreateListBlogsView(generics.ListCreateAPIView):
     queryset = Blog.objects.all()
     serializer_class = BlogSerializer
-    permission_classes = [IsAuthenticated]  # Allow only authenticated users to create
+    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
@@ -258,7 +308,7 @@ class CreateListBlogsView(generics.ListCreateAPIView):
 class BlogDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Blog.objects.all()
     serializer_class = BlogSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]  # Allow only authenticated users to delete or update their own blogs and read for others
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -357,7 +407,7 @@ def delete_avatar(request, public_id):
 def get_users(request):
     users = User.objects.all()
 
-    abstracted_data = [{"email": user.email, "username": user.username, "id": user.id} for user in users]
+    abstracted_data = [{"email": user.email, "username": user.username, "id": user.id, "genres": user.genres} for user in users]
 
     return Response(abstracted_data)
 

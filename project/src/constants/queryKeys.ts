@@ -1,5 +1,5 @@
 export const queryKeys = {
-  user: ["user"],
+  dashPosts: ["dashboard-posts"],
   blogs: ["blogs"],
   publishedBlogs: ["publishedBlogs"],
   blog: (id: string) => ["blog", id],

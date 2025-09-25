@@ -6,11 +6,13 @@ import Loader from '../components/Loader';
 import HomepageBlogItem from '../components/homepage/HomepageBlogItem';
 
 export default function HomePage() {
-  const { posts: publishedPosts = [], isFetchingBlogs } = useGetPublishedBlogs();
+  const { posts, isFetchingBlogs } = useGetPublishedBlogs();
 
 if (isFetchingBlogs) {
   return <Loader />;
 }
+
+const publishedPosts = posts?.results ?? [];
 
   return (
     <div className="min-h-screen bg-gray-50">

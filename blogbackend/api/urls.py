@@ -18,6 +18,6 @@ urlpatterns = [
   path('check-email/', views.check_email_availability, name='check-email'),
   path('send-otp/', views.send_otp_to_email, name='send-otp'),
   path('verify-otp/', views.verify_otp, name='verify-otp'),
-  path('/user/delete-avatar/<str:public_id>/', views.delete_avatar, name='delete-avatar'),
+  path('user/delete-avatar/<str:public_id>/', views.delete_avatar, name='delete-avatar'),
   # path('reset-password/', views.reset_password, name='reset-password'),
 ]

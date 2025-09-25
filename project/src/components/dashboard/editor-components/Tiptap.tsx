@@ -33,7 +33,7 @@ const Tiptap = ({content, setContent}: TiptapProps) => {
         },
         codeBlock: {
           HTMLAttributes: {
-            class: "bg-gray-100 p-4 rounded-md text-sm",
+            class: "bg-gray-100 p-4 rounded-md text-sm text-wrap my-2 font-mono",
           },
         },
         blockquote: {

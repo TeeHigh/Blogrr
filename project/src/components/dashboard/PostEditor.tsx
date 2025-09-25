@@ -27,6 +27,7 @@ import useSingleBlog from "../../hooks/blogHooks/useSingleBlog";
 import OverlayLoader from "../OverlayLoader";
 import Tiptap from "./editor-components/Tiptap";
 import { stripHtml } from "../../utils/stripHtml";
+import { clear } from "console";
 
 export default function PostEditor({
   mode = "create",
@@ -225,6 +226,8 @@ export default function PostEditor({
       if (status !== originalData.status) updatedFields.status = status;
       if (JSON.stringify(tags) !== JSON.stringify(originalData.tags))
         updatedFields.tags = tags;
+      if(calculateReadTime(content) !== originalData.readTime)
+        updatedFields.readTime = calculateReadTime(content);
 
       updatedFields.updated_at = new Date().toISOString();
       if (status === "published") {
@@ -252,6 +255,7 @@ export default function PostEditor({
       try {
         updateBlog({ id, post: updatedFields });
         navigate("/dashboard/posts");
+        // console.log("Updated fields:", updatedFields);
       } catch (error) {
         console.error("Failed to update post:", error);
       } finally {
@@ -358,8 +362,10 @@ export default function PostEditor({
                   onError={(e) => {
                     e.currentTarget.style.display = "none";
                     toast.error("Invalid image URL");
+                    setSaving(true)
                     setTimeout(() => {
                       setCoverImage("");
+                      setSaving(false);
                     }, 100);
                   }}
                 />

@@ -76,7 +76,7 @@ export async function createBlogApi(
 
 export async function updateBlogApi(id: string, data: Partial<BlogPost>) {
   try {
-    const response = await api.put(`/api/post/${id}/`, data, config);
+    const response = await api.patch(`/api/post/${id}/`, data, config);
     return response.data;
   } catch (err) {
     if (axios.isAxiosError(err)) {

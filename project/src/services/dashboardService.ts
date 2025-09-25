@@ -26,7 +26,12 @@ export const fetchDashboardPosts = async (page: number, searchTerm?: string, fil
     
     const finalUrl = `${url.pathname}${url.search}`;
 
-    const res = await api.get(finalUrl);
+    const res = await api.get(finalUrl, {
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': api.defaults.headers.common['X-CSRFToken'] || '',
+      },
+    });
     return res.data;
   } catch (err) {
     console.error("Error fetching dashboard posts:", err);

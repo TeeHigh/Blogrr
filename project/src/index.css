@@ -50,6 +50,15 @@ input{
   font-size: 1rem;
 }
 
+code{
+  word-break: break-all;
+}
+
+pre{
+  overflow-x: auto;
+  white-space: pre-wrap;
+}
+
 .highlighted {
   background: linear-gradient(135deg, #639fab, #3d6c78);
   color: #fff;

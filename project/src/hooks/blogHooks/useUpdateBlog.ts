@@ -25,9 +25,10 @@ export default function useUpdateBlog() {
       });
     },
     onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.user, refetchType: "active" });
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashPosts, refetchType: "active" });
       queryClient.invalidateQueries({ queryKey: queryKeys.blogs, refetchType: "active" });
       queryClient.invalidateQueries({ queryKey: queryKeys.publishedBlogs , refetchType: "active"});
+      queryClient.invalidateQueries({ queryKey: queryKeys.blog(id), refetchType: "active" });
       queryClient.invalidateQueries({ queryKey: queryKeys.blog(id), refetchType: "active" });
     },
     onError: (error) => {

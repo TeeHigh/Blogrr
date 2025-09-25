@@ -66,11 +66,11 @@ class UpdateUserSerializer(serializers.ModelSerializer):
         }
 
 class BlogSerializer(serializers.ModelSerializer):
-    author = serializers.SerializerMethodField()
+    author = serializers.SerializerMethodField(read_only=True)
+    author_avatar = serializers.SerializerMethodField(read_only=True)
     tags = serializers.ListField(
         child=serializers.CharField(), required=False
     )
-    author_avatar = serializers.SerializerMethodField()
 
     class Meta:
         model = Blog
