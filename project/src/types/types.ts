@@ -137,6 +137,7 @@ export interface DashboardStat {
 }
 
 export interface ProfileSettingsFormData {
+  username: string;
   fullname: string;
   email: string;
   bio: string;

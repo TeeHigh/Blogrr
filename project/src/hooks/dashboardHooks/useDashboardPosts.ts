@@ -1,12 +1,16 @@
 import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchDashboardPosts } from "../../services/dashboardService";
 import { useEffect } from "react";
-import { paginationConstants } from "../../constants/paginationConstants";
+import { useSearchParams } from "react-router-dom";
 
 const useDashboardPosts = () => {
   const queryClient = useQueryClient();
 
-  const { pageNumber, searchTerm, filterStatus } = paginationConstants;
+  const [searchParams] = useSearchParams();
+
+  const pageNumber = Number(searchParams.get("page")) || 1;
+  const searchTerm = searchParams.get("search") || "";
+  const filterStatus = searchParams.get("status") || "";
 
   const { data, isFetching } = useQuery({
     queryKey: ["dashboard-posts", pageNumber, searchTerm, filterStatus],
@@ -14,7 +18,7 @@ const useDashboardPosts = () => {
     placeholderData: keepPreviousData,
     staleTime: 1000 * 60, // cache pages for 1 minute
     retry: 0,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
   });
 
   // Prefetch next and prev pages when data arrives

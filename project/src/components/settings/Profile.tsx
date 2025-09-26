@@ -42,7 +42,16 @@ function Profile() {
             setShowUploadOptions={setShowAvatarModal}
           />
           <div>
-            <h4 className="font-medium text-gray-900">Profile Picture</h4>
+            <div className="my-4">
+              <h2 className="font-semibold text-2xl text-gray-800">
+                {profileData.fullname}
+              </h2>
+              <h4 className="font-medium text-gray-500">
+                {"@"}
+                {profileData.username}
+              </h4>
+            </div>
+            <h4 className="font-medium text-gray-700">Profile Picture</h4>
             <p className="text-sm text-gray-600">
               Click the camera icon to change your avatar
             </p>
@@ -83,6 +92,25 @@ function Profile() {
               }))
             }
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+        </div>
+
+        {/* Username */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Username
+          </label>
+          <input
+            type="text"
+            value={profileData.username}
+            onChange={(e) =>
+              setProfileData((prev) => ({
+                ...prev,
+                name: e.target.value,
+              }))
+            }
+            disabled
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-not-allowed bg-gray-50 text-gray-500"
           />
         </div>
 

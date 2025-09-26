@@ -29,6 +29,7 @@ type SettingsContextType = {
   showAvatarModal: boolean;
   setShowAvatarModal: Dispatch<SetStateAction<boolean>>;
   profileData: {
+    username: string;
     fullname: string;
     email: string;
     bio: string;
@@ -37,6 +38,7 @@ type SettingsContextType = {
   setProfileData: React.Dispatch<
     React.SetStateAction<{
       fullname: string;
+      username: string;
       email: string;
       bio: string;
       avatar: string | CloudinaryUploadResponse;
@@ -106,6 +108,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     email: user?.email || "",
     bio: user?.bio || "",
     avatar: user?.avatar || "",
+    username: user?.username || "",
   });
 
   useEffect(() => {
@@ -115,6 +118,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
         email: user.email || "",
         bio: user.bio || "",
         avatar: user.avatar || "",
+        username: user?.username || "",
       });
     }
   }, [user]);
@@ -146,6 +150,9 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     const updatedData: Partial<ProfileSettingsFormData> = {};
     if (profileData.fullname !== user?.fullname) {
       updatedData.fullname = profileData.fullname;
+    }
+    if (profileData.username !== user?.username) {
+      updatedData.username = profileData.username;
     }
     if (profileData.email !== user?.email) {
       updatedData.email = profileData.email;

@@ -195,7 +195,7 @@ export default function BlogManagement() {
           </div>
         )}
       </div>
-      {dashboardPosts.results.length >= PAGE_SIZE && (
+      {dashboardPosts.count >= PAGE_SIZE && (
         <div className="flex flex-col-reverse sm:flex-row justify-center items-center gap-6">
           <Pagination
             total={totalPages}

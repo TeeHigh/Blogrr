@@ -588,12 +588,19 @@ export default function PostEditor({
               </div>
             </article>
           </Modal>
+
           {/* Buttons */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <button
               type="button"
-              className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors disabled:cursor-not-allowed"
               onClick={open}
+              disabled={
+                saving ||
+                !title.trim() ||
+                !content.trim() ||
+                (mode === "edit" && !hasChanged)
+              }
             >
               <Eye className="h-4 w-4" />
               Preview
