@@ -105,6 +105,8 @@ export default function BlogManagement() {
     });
   };
 
+  console.log(dashboardPosts);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -193,7 +195,7 @@ export default function BlogManagement() {
           </div>
         )}
       </div>
-      {dashboardPosts.results.length > PAGE_SIZE && (
+      {dashboardPosts.results.length >= PAGE_SIZE && (
         <div className="flex flex-col-reverse sm:flex-row justify-center items-center gap-6">
           <Pagination
             total={totalPages}

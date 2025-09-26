@@ -49,24 +49,6 @@ function Profile() {
           </div>
         </div>
 
-        {/* Name */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Full Name
-          </label>
-          <input
-            type="text"
-            value={profileData.fullname}
-            onChange={(e) =>
-              setProfileData((prev) => ({
-                ...prev,
-                name: e.target.value,
-              }))
-            }
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-
         {/* Email */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -79,6 +61,25 @@ function Profile() {
               setProfileData((prev) => ({
                 ...prev,
                 email: e.target.value,
+              }))
+            }
+            disabled
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-not-allowed bg-gray-50 text-gray-500"
+          />
+        </div>
+
+        {/* Name */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Full Name
+          </label>
+          <input
+            type="text"
+            value={profileData.fullname}
+            onChange={(e) =>
+              setProfileData((prev) => ({
+                ...prev,
+                name: e.target.value,
               }))
             }
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"

@@ -1,6 +1,10 @@
-import React from "react";
+import { useSettings } from "../../contexts/SettingsContext";
+import { Eye, EyeOff, Lock } from "lucide-react";
 
 function Security() {
+  const { showPasswords, setPasswordData, passwordData, loading, handlePasswordChange } = useSettings();
+
+
   return (
     <div className="space-y-6">
       <div>

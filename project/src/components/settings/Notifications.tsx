@@ -1,6 +1,7 @@
-import React from "react";
+import { useSettings } from "../../contexts/SettingsContext";
 
 function Notifications() {
+  const { notifications, setNotifications } = useSettings();
   return (
     <div className="space-y-6">
       <div>
@@ -8,7 +9,7 @@ function Notifications() {
           Notification Preferences
         </h3>
 
-        <div className="space-y-4">
+        {/* <div className="space-y-4">
           {Object.entries(notifications).map(([key, value]) => (
             <div key={key} className="flex items-center justify-between py-3">
               <div>
@@ -45,6 +46,11 @@ function Notifications() {
               </label>
             </div>
           ))}
+        </div> */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <p className="text-blue-800">
+            Notification settings will be available in a future update.
+          </p>
         </div>
       </div>
     </div>
